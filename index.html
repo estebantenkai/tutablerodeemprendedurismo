@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero de Emprendedurismo — Tenkai Consulting</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --p:#3b35a8; --p2:#8b3a8f; --p3:rgba(59,53,168,0.1);
+  --b:#2d2894; --teal:#d4522a; --teal2:rgba(212,82,42,0.1);
+  --rose:#c2415a; --amber:#d97706; --green:#059669; --red:#dc2626;
+  --grad:linear-gradient(135deg,#3b35a8 0%,#8b3a8f 50%,#d4522a 100%);
+  --grad-h:linear-gradient(90deg,#3b35a8 0%,#d4522a 100%);
+  --f:'Figtree',sans-serif;
+  --sw:252px; --hh:58px;
+  --white:#fff; --surf:#f7f7fb; --surf2:#f0f0f8;
+  --bdr:#e4e4f0; --bdr2:#c8c8e0; --muted:#8888aa;
+  --txt:#18182e; --txt2:#44445a;
+  --r:16px; --rsm:10px; --rxs:6px;
+  --sh:0 1px 3px rgba(30,25,60,.06),0 1px 2px rgba(30,25,60,.04);
+  --shm:0 4px 16px rgba(30,25,60,.08),0 1px 4px rgba(30,25,60,.04);
+  --shl:0 12px 40px rgba(30,25,60,.12),0 4px 12px rgba(30,25,60,.06);
+  --shxl:0 24px 64px rgba(30,25,60,.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--f);background:var(--surf);color:var(--txt);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.5}
+a{text-decoration:none;color:inherit}
+button,input,textarea,select{font-family:var(--f)}
+textarea{resize:vertical}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:99px}
+:focus-visible{outline:2px solid var(--p);outline-offset:1px;border-radius:4px}
+
+/* ── HEADER ── */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hh);background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--bdr);display:flex;align-items:center;z-index:200;box-shadow:var(--sh)}
+.hdr-brand{display:flex;align-items:center;gap:10px;width:var(--sw);padding:0 18px;border-right:1px solid var(--bdr);height:100%;flex-shrink:0}
+.hdr-logo{width:33px;height:33px;border-radius:8px;object-fit:cover;box-shadow:var(--sh)}
+.hdr-name{font-size:14px;font-weight:800;letter-spacing:2.5px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr-sub{font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.8px}
+.hdr-center{flex:1;display:flex;align-items:center;padding:0 22px;gap:14px}
+.hdr-greet{font-size:13.5px;color:var(--txt2)}
+.hdr-greet strong{color:var(--p);font-weight:700}
+.hdr-right{display:flex;align-items:center;gap:7px;padding-right:16px}
+.menu-btn{display:none;width:37px;height:37px;border:1px solid var(--bdr);border-radius:9px;background:#fff;cursor:pointer;align-items:center;justify-content:center;font-size:17px;color:var(--txt2);flex-shrink:0}
+
+/* ── SIDEBAR ── */
+.sb{position:fixed;top:var(--hh);left:0;width:var(--sw);height:calc(100vh - var(--hh));background:var(--white);border-right:1px solid var(--bdr);overflow-y:auto;z-index:100;padding:14px 11px;display:flex;flex-direction:column;gap:3px}
+.sb-bk{display:none;position:fixed;inset:0;top:var(--hh);background:rgba(18,18,40,.4);z-index:99}
+.sb-prog{background:var(--grad);border-radius:var(--r);padding:13px 15px;margin-bottom:10px;color:#fff;overflow:hidden;position:relative}
+.sb-prog::after{content:'';position:absolute;right:-18px;top:-18px;width:70px;height:70px;background:rgba(255,255,255,.1);border-radius:50%}
+.sb-prog-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.sb-prog-lbl{font-size:9.5px;font-weight:600;letter-spacing:1px;opacity:.8;text-transform:uppercase}
+.sb-prog-pct{font-size:21px;font-weight:800}
+.sb-prog-bar{height:4px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden}
+.sb-prog-fill{height:100%;background:#fff;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.sb-prog-sub{font-size:10px;opacity:.7;margin-top:5px}
+.sb-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:9px 8px 3px;display:block}
+.nb{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:var(--rsm);border:none;background:transparent;width:100%;text-align:left;cursor:pointer;transition:background .15s;position:relative}
+.nb:hover{background:var(--surf)}
+.nb.on{background:linear-gradient(135deg,rgba(59,53,168,.1),rgba(139,58,143,.07))}
+.nb.on::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:3px;background:var(--grad);border-radius:0 2px 2px 0}
+.nb-ico{width:29px;height:29px;border-radius:7px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:background .15s}
+.nb.on .nb-ico{background:var(--grad)}
+.nb-name{font-size:12px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nb.on .nb-name{color:var(--p)}
+.nb-desc{font-size:10px;color:var(--muted)}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);margin-top:var(--hh);padding:26px 30px;min-height:calc(100vh - var(--hh))}
+.mod{display:none;animation:mi .2s ease}
+.mod.on{display:block}
+@keyframes mi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.mod-tag{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--p);background:var(--p3);padding:3px 9px;border-radius:99px;margin-bottom:7px}
+.mod-title{font-size:23px;font-weight:800;margin-bottom:5px;line-height:1.2}
+.mod-desc{font-size:13px;color:var(--muted);max-width:580px;line-height:1.6;margin-bottom:22px}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:18px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap}
+.card-ttl{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+.dot{width:3px;height:15px;background:var(--grad);border-radius:2px;flex-shrink:0}
+.hint{font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/* ── FORM ── */
+.fld{margin-bottom:14px}
+.lbl{display:block;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.inp,.ta,.sel{width:100%;border:1.5px solid var(--bdr);border-radius:var(--rsm);padding:9px 13px;font-size:13px;color:var(--txt);background:var(--white);transition:border-color .14s,box-shadow .14s;outline:none}
+.inp:focus,.ta:focus,.sel:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(59,53,168,.09)}
+.ta{min-height:80px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;border:none;border-radius:var(--rsm);padding:8px 16px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--grad);color:#fff}
+.btn-p:hover{opacity:.87;box-shadow:0 4px 14px rgba(59,53,168,.35)}.btn-sec{background:var(--surf2);color:var(--txt2);border:1px solid var(--bdr)}
+.btn-sec:hover{background:var(--bdr)}
+.btn-out{background:transparent;color:var(--p);border:1.5px solid var(--p)}
+.btn-out:hover{background:var(--p3)}
+.btn-gh{background:transparent;color:var(--muted);border:1px solid var(--bdr)}
+.btn-gh:hover{background:var(--surf);color:var(--txt)}
+.btn-danger{background:#fff1f1;color:var(--red);border:1px solid #ffd0d0}
+.btn-danger:hover{background:#ffe0e0}
+.btn-sm{padding:6px 12px;font-size:11.5px;border-radius:var(--rxs)}
+.btn-xs{padding:4px 8px;font-size:11px;border-radius:var(--rxs)}
+
+/* ── STATUS PILLS ── */
+.pill-wrap{display:flex;gap:4px;flex-shrink:0}
+.pill{padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:600;cursor:pointer;border:1.5px solid transparent;opacity:.35;transition:all .14s}
+.pill:hover{opacity:.65}
+.pill.on{opacity:1}
+.pill-pend{background:#f3f4f6;color:#4b5563;border-color:#d1d5db}
+.pill-pend.on{background:#f3f4f6;border-color:#9ca3af;opacity:1}
+.pill-proc{background:#fffbeb;color:#92400e;border-color:#fbbf24}
+.pill-proc.on{background:#fef3c7;border-color:#f59e0b;opacity:1}
+.pill-ok{background:#ecfdf5;color:#065f46;border-color:#6ee7b7}
+.pill-ok.on{background:#d1fae5;border-color:#10b981;opacity:1}
+
+/* ── PROGRESS BAR ── */
+.prog-wrap{margin-bottom:14px}
+.prog-row{display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;color:var(--txt2);margin-bottom:4px}
+.prog-row span:last-child{color:var(--p)}
+.prog-bar{height:7px;background:var(--surf2);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:var(--grad);border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--surf2);border-radius:var(--rsm);padding:3px;margin-bottom:18px;gap:2px;flex-wrap:wrap}
+.tab{flex:1;padding:7px 12px;border:none;background:transparent;border-radius:var(--rxs);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center}
+.tab.on{background:#fff;color:var(--p);box-shadow:var(--sh)}
+.tc{display:none}
+.tc.on{display:block}
+
+/* ── STAT CARDS ── */
+.stat{background:#fff;border:1px solid var(--bdr);border-radius:var(--r);padding:16px;text-align:center;box-shadow:var(--sh)}
+.stat-ico{font-size:22px;margin-bottom:7px}
+.stat-num{font-size:26px;font-weight:800;color:var(--p);line-height:1}
+.stat-lbl{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:3px}
+
+/* ── ENERGY TRACKER ── */
+.en-btns{display:flex;gap:8px;margin-bottom:14px}
+.en-btn{flex:1;padding:12px;border:2px solid var(--bdr);border-radius:var(--rsm);background:#fff;text-align:center;cursor:pointer;transition:all .17s}
+.en-btn:hover{border-color:var(--p)}
+.en-btn.on-alta{background:rgba(5,150,105,.07);border-color:var(--green);box-shadow:0 0 0 2px rgba(5,150,105,.2)}
+.en-btn.on-media{background:rgba(217,119,6,.07);border-color:var(--amber);box-shadow:0 0 0 2px rgba(217,119,6,.2)}
+.en-btn.on-baja{background:rgba(220,38,38,.07);border-color:var(--red);box-shadow:0 0 0 2px rgba(220,38,38,.2)}
+.en-ico{font-size:22px;margin-bottom:3px}
+.en-lbl{font-size:11.5px;font-weight:700;color:var(--txt2)}
+.en-log{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.en-log-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surf);border-radius:var(--rxs);font-size:12.5px}
+.en-log-date{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap;min-width:90px}
+.en-log-msg{color:var(--txt2);flex:1}
+.en-log-badge{font-size:17px}
+.en-empty{font-size:12.5px;color:var(--muted);text-align:center;padding:16px}
+
+/* ── RITUALES ── */
+.ritual-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--rxs);transition:background .12s}
+.ritual-item:hover{background:var(--surf)}
+.ritual-chk{width:17px;height:17px;border:2px solid var(--bdr2);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .14s;background:#fff}
+.ritual-chk.ck{background:var(--grad);border-color:transparent}
+.ritual-txt{flex:1;font-size:12.5px;color:var(--txt2)}
+.ritual-txt.done{text-decoration:line-through;color:var(--muted)}
+.ritual-edit-inp{flex:1;border:none;background:transparent;font-family:var(--f);font-size:12.5px;color:var(--txt);outline:none;padding:0}
+.ritual-edit-inp::placeholder{color:var(--muted)}
+
+/* ── FOLLOW-UPS ── */
+.fu-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rsm);margin-bottom:6px;font-size:12.5px;flex-wrap:wrap}
+.fu-date{font-size:10.5px;font-weight:700;min-width:64px;color:var(--p)}
+.fu-date.due{color:var(--red)}
+.fu-body{flex:1;color:var(--txt2);min-width:160px}
+.fu-tag{font-size:9.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--p3);color:var(--p);white-space:nowrap}
+.fu-tag.due{background:#fef2f2;color:#b91c1c}
+
+/* ── SOURCE ANALYTICS ── */
+.src-row{display:flex;align-items:center;gap:9px;margin-bottom:8px;font-size:12px}
+.src-nm{min-width:112px;color:var(--txt2);font-weight:600;font-size:11.5px}
+.src-bar{flex:1;height:13px;background:var(--surf2);border-radius:99px;overflow:hidden}
+.src-fill{height:100%;background:var(--grad-h);border-radius:99px;transition:width .4s}
+.src-val{min-width:108px;text-align:right;color:var(--muted);font-size:10.5px}
+
+/* ── BACKUP BANNER ── */
+.bk-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(212,82,42,.07),rgba(59,53,168,.05));border:1px solid rgba(212,82,42,.3);border-radius:var(--rsm);padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:var(--txt2);flex-wrap:wrap}
+.bk-banner.on{display:flex}
+
+/* ── NETWORKING ── */
+.net-phi{background:linear-gradient(135deg,rgba(59,53,168,.06),rgba(139,58,143,.04));border:1px solid rgba(59,53,168,.15);border-radius:var(--r);padding:18px 20px;margin-bottom:18px;font-size:13px;line-height:1.7;color:var(--txt2)}
+.net-phi strong{color:var(--p)}
+.net-hdr{display:grid;grid-template-columns:24px 1.1fr 1fr 74px 106px 106px 26px 34px;gap:7px;padding:0 8px;margin-bottom:5px}
+.net-hdr span{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.net-row{display:grid;grid-template-columns:24px 1.1fr 1fr 74px 106px 106px 26px 34px;gap:7px;align-items:center;padding:7px 8px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rxs);margin-bottom:4px}
+.net-row.stale{border-left:3px solid var(--teal)}
+.net-num{font-size:10.5px;color:var(--muted);font-weight:700;text-align:center}
+.net-inp{border:none;background:transparent;font-family:var(--f);font-size:12.5px;color:var(--txt);outline:none;width:100%}
+.net-inp::placeholder{color:var(--muted)}
+.net-sel{border:none;background:transparent;font-family:var(--f);font-size:11.5px;color:var(--txt);outline:none;cursor:pointer;width:100%}
+.net-del{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;transition:color .13s;padding:0}
+.net-del:hover{color:var(--red)}
+.net-msg-btn{background:var(--grad);border:none;border-radius:5px;color:#fff;font-size:11px;font-weight:600;padding:4px 7px;cursor:pointer;transition:opacity .14s}
+.net-msg-btn:hover{opacity:.8}
+
+/* ── TRACKER TABLE ── */
+.tbl-wrap{overflow-x:auto}
+.apps-tbl{width:100%;border-collapse:collapse;min-width:1460px}
+.lnk-open{color:var(--p);font-weight:800;font-size:13px;margin-left:4px;text-decoration:none}
+.lnk-open:hover{color:var(--teal)}
+.apps-tbl th{font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:8px 9px;text-align:left;border-bottom:1.5px solid var(--bdr);background:var(--surf);white-space:nowrap}
+.apps-tbl td{padding:8px 9px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.apps-tbl tbody tr:hover{background:var(--surf)}
+.ti{border:none;background:transparent;font-family:var(--f);font-size:12.5px;color:var(--txt);outline:none;width:100%;min-width:55px}
+.ti::placeholder{color:var(--muted)}
+.ts{border:none;background:transparent;font-family:var(--f);font-size:11.5px;color:var(--txt);outline:none;cursor:pointer;max-width:130px}
+.sb-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10.5px;font-weight:600;white-space:nowrap}
+.sb-guardado{background:#f3f4f6;color:#374151}
+.sb-postulado{background:#eff6ff;color:#1d4ed8}
+.sb-entrevista{background:#fffbeb;color:#92400e}
+.sb-oferta{background:#ecfdf5;color:#065f46}
+.sb-rechazado{background:#fef2f2;color:#991b1b}
+.sb-archivado{background:#f5f5f5;color:#6b7280}
+.sb-aceptada{background:linear-gradient(135deg,rgba(5,150,105,.15),rgba(59,53,168,.1));color:#065f46;font-weight:700}
+.prio-h{background:rgba(220,38,38,.08);color:#b91c1c;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.prio-l{background:rgba(59,53,168,.06);color:#3b35a8;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+
+/* ── FUNNEL ── */
+.funnel{display:flex;align-items:flex-end;gap:10px;padding:16px 0}
+.funnel-col{flex:1;text-align:center}
+.funnel-lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.funnel-outer{background:var(--surf2);border-radius:var(--rxs);overflow:hidden;height:110px;display:flex;align-items:flex-end}
+.funnel-inner{width:100%;border-radius:var(--rxs);transition:height .55s cubic-bezier(.4,0,.2,1)}
+.funnel-num{font-size:19px;font-weight:800;color:var(--p);margin-top:5px}
+.funnel-pct{font-size:10px;color:var(--muted)}
+.funnel-arr{color:var(--muted);font-size:16px;padding-bottom:55px;flex-shrink:0}
+
+/* ── EVAL CARDS ── */
+.ev-card{background:#fff;border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:15px;box-shadow:var(--sh)}
+.ev-title-inp{font-size:14.5px;font-weight:700;border:none;background:transparent;color:var(--txt);outline:none;flex:1;font-family:var(--f);min-width:180px}
+.ev-title-inp::placeholder{color:var(--muted);font-weight:500}
+.r-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--bdr)}
+.r-row:last-child{border-bottom:none}
+.r-lbl{flex:1;font-size:12.5px;color:var(--txt2)}
+.r-obs{flex:1.2}
+.r-obs-inp{border:1.5px solid var(--bdr);border-radius:var(--rxs);padding:4px 8px;font-size:11.5px;font-family:var(--f);color:var(--txt);width:100%;outline:none;transition:border-color .14s}
+.r-obs-inp:focus{border-color:var(--p)}.r-btns{display:flex;gap:3px;flex-shrink:0}
+.rb{width:26px;height:26px;border:1.5px solid var(--bdr);border-radius:5px;background:#fff;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .13s}
+.rb:hover{border-color:var(--p);color:var(--p)}
+.rb.on{background:var(--grad);color:#fff;border-color:transparent}
+.score-circle{width:50px;height:50px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800;flex-shrink:0}
+.ev-cat-ttl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--p);margin:14px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--bdr)}
+
+/* ── PROMPTS ── */
+.prompt-card{background:#fff;border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
+.prompt-ttl{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.prompt-body{font-size:12px;color:var(--muted);line-height:1.7;background:var(--surf);border-radius:var(--rxs);padding:11px 13px;max-height:75px;overflow:hidden;position:relative;transition:max-height .3s}
+.prompt-body.xp{max-height:900px}
+.prompt-body:not(.xp)::after{content:'';position:absolute;bottom:0;left:0;right:0;height:32px;background:linear-gradient(transparent,var(--surf))}
+.cpy-ok{background:#ecfdf5!important;color:var(--green)!important;border-color:#a7f3d0!important}
+.pp-badge{font-size:9.5px;font-weight:700;color:var(--green);background:#ecfdf5;border:1px solid #a7f3d0;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pp-badge.off{color:var(--muted);background:var(--surf2);border-color:var(--bdr)}
+
+/* ── RESOURCES ── */
+.res-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.res-card{background:#fff;border:1px solid var(--bdr);border-radius:var(--rsm);padding:12px;display:flex;align-items:flex-start;gap:10px;text-decoration:none;transition:all .17s;box-shadow:var(--sh)}
+.res-card:hover{border-color:var(--p);box-shadow:var(--shm);transform:translateY(-2px)}
+.res-ico{width:36px;height:36px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.res-info h4{font-size:12px;font-weight:700;color:var(--txt);margin-bottom:2px}
+.res-info p{font-size:10.5px;color:var(--muted);line-height:1.4}
+.res-tag{font-size:9.5px;font-weight:600;background:var(--surf2);color:var(--muted);padding:2px 6px;border-radius:99px;display:inline-block;margin-top:3px}
+.res-group{margin-bottom:22px}
+.res-group-ttl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--p);margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.res-group-ttl::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* ── RADAR SKILLS ── */
+.skill-row{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.skill-nm{font-size:12px;color:var(--txt2);min-width:120px}
+.skill-sl{flex:1;-webkit-appearance:none;height:4px;background:var(--surf2);border-radius:99px;outline:none;cursor:pointer}
+.skill-sl::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--grad);cursor:pointer;box-shadow:0 1px 4px rgba(59,53,168,.3)}
+.skill-val{font-size:11.5px;font-weight:700;color:var(--p);min-width:18px;text-align:right}
+.skill-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;transition:color .13s}
+.skill-del:hover{color:var(--red)}
+.radar-match{background:linear-gradient(135deg,var(--p3),rgba(212,82,42,.08));border:1px solid rgba(59,53,168,.2);border-radius:var(--r);padding:14px 16px;margin-top:14px}
+.radar-match-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--p);margin-bottom:8px}
+.match-kw{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;margin:3px;border:1px solid transparent}
+.match-found{background:#ecfdf5;color:#065f46;border-color:#6ee7b7}
+.match-miss{background:#fef2f2;color:#991b1b;border-color:#fca5a5}
+
+/* ── MARCA PERSONAL ── */
+.post-hdr{display:grid;grid-template-columns:104px 1fr 120px 104px 104px 26px;gap:7px;padding:0 8px;margin-bottom:5px}
+.post-hdr span{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.post-row{display:grid;grid-template-columns:104px 1fr 120px 104px 104px 26px;gap:7px;align-items:center;padding:7px 8px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rxs);margin-bottom:4px}
+
+/* ── MODAL ── */
+.modal-ov{position:fixed;inset:0;background:rgba(18,18,40,.56);backdrop-filter:blur(5px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-ov.op{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:20px;padding:26px;width:100%;max-width:500px;box-shadow:var(--shxl);transform:translateY(18px) scale(.97);transition:transform .22s cubic-bezier(.4,0,.2,1)}
+.modal-ov.op .modal{transform:none}
+.modal-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.modal-ttl{font-size:16px;font-weight:800}
+.modal-x{width:26px;height:26px;border-radius:50%;border:none;background:var(--surf2);color:var(--muted);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-x:hover{background:var(--bdr)}
+
+/* ── CELEBRACIÓN ── */
+.celeb-ov{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(18,18,40,.7);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .3s}
+.celeb-ov.op{opacity:1;pointer-events:all}
+.celeb-box{background:#fff;border-radius:28px;padding:44px 40px;max-width:520px;width:90%;text-align:center;box-shadow:var(--shxl);transform:scale(.85);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.celeb-ov.op .celeb-box{transform:scale(1)}
+.celeb-emoji{font-size:64px;margin-bottom:16px;animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.celeb-title{font-size:24px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.celeb-msg{font-size:14px;color:var(--txt2);line-height:1.8;margin-bottom:8px}
+.celeb-sign{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:22px}
+.confetti-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:28px}
+.cc{position:absolute;width:8px;height:8px;opacity:0;animation:cf 3.5s ease-out infinite}
+@keyframes cf{0%{opacity:1;transform:translateY(-20px) rotate(0deg)}100%{opacity:0;transform:translateY(400px) rotate(720deg)}}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--txt);color:#fff;padding:11px 16px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;box-shadow:var(--shl);z-index:9999;transform:translateY(70px);opacity:0;transition:all .25s cubic-bezier(.4,0,.2,1);max-width:300px;display:flex;align-items:center;gap:7px}
+.toast.show{transform:none;opacity:1}
+.toast.ok{background:#065f46}
+.toast.err{background:#991b1b}
+
+/* ── ONBOARDING ── */
+.ob-ov{position:fixed;inset:0;background:#fff;z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:30px;text-align:center}
+.ob-logo{width:60px;height:60px;border-radius:14px;object-fit:cover;margin-bottom:18px;box-shadow:var(--shm)}
+.ob-brand{font-size:20px;font-weight:800;letter-spacing:3px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:3px}
+.ob-sub{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:28px}
+.ob-box{background:#fff;border:1px solid var(--bdr);border-radius:20px;padding:30px;max-width:420px;width:100%;box-shadow:var(--shl)}
+.ob-ttl{font-size:19px;font-weight:800;margin-bottom:5px}
+.ob-desc{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+
+/* ── TIP BOX ── */
+.tip-box{background:linear-gradient(135deg,rgba(59,53,168,.06),rgba(139,58,143,.04));border:1px solid rgba(59,53,168,.2);border-radius:var(--rsm);padding:11px 14px;font-size:12.5px;color:var(--txt2);line-height:1.6;margin-top:6px}
+.tip-box strong{color:var(--p)}
+
+/* ── FOOTER ── */
+.ftr{margin-left:var(--sw);background:var(--grad);padding:28px 30px;text-align:center}
+.ftr-logo{width:52px;height:52px;border-radius:11px;object-fit:cover;margin:0 auto 14px;display:block}
+.ftr-links{display:flex;justify-content:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.ftr-link{font-size:11.5px;color:rgba(255,255,255,.75);font-weight:500;transition:color .14s;text-decoration:none}
+.ftr-link:hover{color:#fff}
+.ftr-copy{font-size:9.5px;color:rgba(255,255,255,.5);letter-spacing:.2em;font-weight:700;text-transform:uppercase}
+
+/* ── RESPONSIVE (MOBILE) ── */
+@media(max-width:920px){
+  .menu-btn{display:flex}
+  .hdr-brand{width:auto;border-right:none;padding:0 10px 0 8px}
+  .hdr-greet{display:none}
+  .hdr-center{padding:0 4px}
+  .hdr-right{padding-right:10px;gap:5px}
+  .btn .btxt{display:none}
+  .sb{transform:translateX(-105%);transition:transform .25s cubic-bezier(.4,0,.2,1);width:268px;box-shadow:var(--shl)}
+  .sb.open{transform:none}
+  .sb-bk.on{display:block}
+  .main{margin-left:0;padding:16px 13px}
+  .ftr{margin-left:0}
+  .g2,.g3{grid-template-columns:1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .mod-title{font-size:19px}
+  .net-hdr,.post-hdr{display:none}
+  .net-row,.post-row{display:flex;flex-wrap:wrap}
+  .net-row .net-inp{min-width:44%;flex:1}
+  .post-row .ti{min-width:44%;flex:1}
+  .funnel{gap:5px}
+  .funnel-arr{display:none}
+  .res-grid{grid-template-columns:1fr}
+  .modal{max-width:94vw;padding:20px}
+  .r-row{flex-wrap:wrap}
+  .tabs .tab{min-width:46%}
+}
+
+/* ── PRINT ── */
+@media print{
+  .sb,.hdr,.ftr,.ob-ov,.modal-ov,.celeb-ov,.bk-banner,.menu-btn,.sb-bk{display:none!important}
+  .main{margin:0;padding:0;max-width:100%}
+  .mod{display:block!important;page-break-before:always}
+  .mod:first-child{page-break-before:auto}
+  .btn,.net-del,.net-msg-btn{display:none!important}
+}
+</style>
+</head>
+<body>
+<style>
+/* ── EXTRAS EMPRENDEDURISMO ── */
+.road{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.road-step{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rsm);padding:12px;position:relative;cursor:pointer;transition:all .15s}
+.road-step:hover{border-color:var(--p);box-shadow:var(--sh)}
+.road-num{width:24px;height:24px;border-radius:50%;background:var(--grad);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:7px}
+.road-ttl{font-size:11.5px;font-weight:700;color:var(--txt);margin-bottom:3px;line-height:1.3}
+.road-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.idea-hdr{display:grid;grid-template-columns:1.3fr 1.2fr 1fr 88px 88px 64px 26px;gap:7px;padding:0 8px;margin-bottom:5px}
+.idea-hdr span{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.idea-row{display:grid;grid-template-columns:1.3fr 1.2fr 1fr 88px 88px 64px 26px;gap:7px;align-items:center;padding:7px 8px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rxs);margin-bottom:4px}
+.idea-row.top{border-left:3px solid var(--green);background:rgba(5,150,105,.04)}
+.idea-score{font-size:13px;font-weight:800;color:var(--p);text-align:center}
+.foda-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.foda-box{border-radius:var(--rsm);padding:14px;border:1px solid var(--bdr)}
+.foda-box h4{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.foda-box p{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+.foda-f{background:rgba(5,150,105,.05)}.foda-f h4{color:var(--green)}
+.foda-o{background:rgba(59,53,168,.05)}.foda-o h4{color:var(--p)}
+.foda-d{background:rgba(217,119,6,.05)}.foda-d h4{color:var(--amber)}
+.foda-a{background:rgba(220,38,38,.05)}.foda-a h4{color:var(--red)}
+.bmc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.bmc-box{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rsm);padding:12px}
+.bmc-box h4{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--p);margin-bottom:3px}
+.bmc-box p{font-size:10.5px;color:var(--muted);margin-bottom:7px;line-height:1.5}
+.sem-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--bdr);flex-wrap:wrap}
+.sem-row:last-child{border-bottom:none}
+.sem-lbl{flex:1;font-size:12.5px;color:var(--txt2);min-width:200px}
+.sem-btns{display:flex;gap:4px}
+.sem-b{width:24px;height:24px;border-radius:50%;border:2px solid var(--bdr);background:#fff;cursor:pointer;transition:all .13s;font-size:0}
+.sem-b:hover{transform:scale(1.12)}
+.sem-b.r.on{background:var(--red);border-color:var(--red)}
+.sem-b.a.on{background:var(--amber);border-color:var(--amber)}
+.sem-b.v.on{background:var(--green);border-color:var(--green)}
+.val-hdr{display:grid;grid-template-columns:80px 1fr 1fr 96px 1.2fr 74px 1fr 110px 26px;gap:7px;padding:0 8px;margin-bottom:5px}
+.val-hdr span{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.val-row{display:grid;grid-template-columns:80px 1fr 1fr 96px 1.2fr 74px 1fr 110px 26px;gap:7px;align-items:center;padding:7px 8px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rxs);margin-bottom:4px}
+.fin-res{background:linear-gradient(135deg,rgba(59,53,168,.06),rgba(212,82,42,.05));border:1px solid rgba(59,53,168,.2);border-radius:var(--r);padding:18px;text-align:center}
+.fin-res-num{font-size:30px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
+.fin-res-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:4px}
+@media(max-width:920px){
+  .road{grid-template-columns:1fr 1fr}
+  .foda-grid,.bmc-grid{grid-template-columns:1fr}
+  .idea-hdr,.val-hdr{display:none}
+  .idea-row,.val-row{display:flex;flex-wrap:wrap}
+}
+@media print{.sem-b:not(.on){display:none}}
+</style>
+
+<!-- ONBOARDING -->
+<div class="ob-ov" id="obOv">
+  <img src="data:image/jpeg;base64,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" alt="Tenkai" class="ob-logo">
+  <div class="ob-brand">TENKAI</div>
+  <div class="ob-sub">Consulting · Tablero de Emprendedurismo</div>
+  <div class="ob-box">
+    <div class="ob-ttl">¡Bienvenido/a!</div>
+    <div class="ob-desc">Este es tu espacio de trabajo para construir tu proyecto propio, paso a paso. ¿Cómo te llamás?</div>
+    <div class="fld"><input class="inp" id="obName" type="text" placeholder="Tu nombre..." maxlength="40" autocomplete="off"></div>
+    <div class="fld"><input class="inp" id="obProj" type="text" placeholder="Nombre de tu proyecto (si ya lo tenés — podés dejarlo vacío)" maxlength="60" autocomplete="off"></div>
+    <button class="btn btn-p" style="width:100%;justify-content:center" onclick="doOnboard()">Comenzar a emprender →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <button class="menu-btn" id="menuBtn" aria-label="Abrir menú" onclick="toggleSb()">☰</button>
+    <img src="data:image/jpeg;base64,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" alt="Tenkai" class="hdr-logo">
+    <div>
+      <div class="hdr-name">TENKAI</div>
+      <div class="hdr-sub">Consulting</div>
+    </div>
+  </div>
+  <div class="hdr-center">
+    <span class="hdr-greet" id="hdrGreet">Tablero de Emprendedurismo</span>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-gh btn-sm" onclick="doExport()" title="Exportar backup JSON">⬇️ <span class="btxt">Backup</span></button>
+    <label class="btn btn-gh btn-sm" style="cursor:pointer" title="Restaurar backup">
+      ⬆️ <span class="btxt">Restaurar</span>
+      <input type="file" accept=".json" style="display:none" onchange="doImport(event)">
+    </label>
+    <button class="btn btn-sec btn-sm" onclick="window.print()" title="Imprimir / guardar PDF">🖨️ <span class="btxt">Imprimir</span></button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sb" id="sbEl">
+  <div class="sb-prog">
+    <div class="sb-prog-row"><span class="sb-prog-lbl">Progreso</span><span class="sb-prog-pct" id="sbPct">0%</span></div>
+    <div class="sb-prog-bar"><div class="sb-prog-fill" id="sbFill" style="width:0%"></div></div>
+    <div class="sb-prog-sub" id="sbSub">Comenzá por tu inventario</div>
+  </div>
+  <span class="sb-lbl">Módulos</span>
+  <button class="nb on" onclick="goMod(0,this)"><div class="nb-ico">🏠</div><div><div class="nb-name">Inicio & Energía</div><div class="nb-desc">Pulso & hoja de ruta</div></div></button>
+  <button class="nb" onclick="goMod(1,this)"><div class="nb-ico">💡</div><div><div class="nb-name">Idea & Pájaro en Mano</div><div class="nb-desc">Recursos & generación de ideas</div></div></button>
+  <button class="nb" onclick="goMod(2,this)"><div class="nb-ico">🎯</div><div><div class="nb-name">Foco Estratégico</div><div class="nb-desc">Hipótesis & propuesta de valor</div></div></button>
+  <button class="nb" onclick="goMod(3,this)"><div class="nb-ico">🧩</div><div><div class="nb-name">Modelo de Negocio</div><div class="nb-desc">FODA, BMC & madurez</div></div></button>
+  <button class="nb" onclick="goMod(4,this)"><div class="nb-ico">🗣️</div><div><div class="nb-name">Pitch & Fachada Digital</div><div class="nb-desc">Comunicación & presencia</div></div></button>
+  <button class="nb" onclick="goMod(5,this)"><div class="nb-ico">🌐</div><div><div class="nb-name">Red Comercial</div><div class="nb-desc">Mapa de influencia</div></div></button>
+  <button class="nb" onclick="goMod(6,this)"><div class="nb-ico">✅</div><div><div class="nb-name">Validación & Ventas</div><div class="nb-desc">Conversaciones & embudo</div></div></button>
+  <button class="nb" onclick="goMod(7,this)"><div class="nb-ico">💰</div><div><div class="nb-name">Finanzas Simples</div><div class="nb-desc">Valor hora & equilibrio</div></div></button>
+  <button class="nb" onclick="goMod(8,this)"><div class="nb-ico">🤖</div><div><div class="nb-name">Bóveda de IA</div><div class="nb-desc">Prompts & recursos</div></div></button>
+</aside>
+<div class="sb-bk" id="sbBk" onclick="toggleSb(false)"></div>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- BACKUP REMINDER -->
+<div class="bk-banner" id="bkBanner">
+  <span style="font-size:17px">💾</span>
+  <span style="flex:1;min-width:200px">Hace más de dos semanas que no exportás un backup. Tus datos viven solo en este navegador — descargá una copia por las dudas.</span>
+  <button class="btn btn-p btn-sm" onclick="doExport()">Exportar ahora</button>
+  <button class="btn btn-gh btn-sm" onclick="snoozeBk()">Más tarde</button>
+</div>
+
+<!-- ══ MOD 0: INICIO & ENERGÍA ══ -->
+<section class="mod on" id="m0">
+  <div class="mod-tag">🏠 Inicio</div>
+  <h1 class="mod-title" id="welcomeTitle">¡Bienvenido/a!</h1>
+  <p class="mod-desc">Tu espacio de arranque. Registrá tu energía, sostené tus rituales de emprendedor/a y seguí el pulso de tu proyecto.</p>
+
+  <div class="g4" style="margin-bottom:18px">
+    <div class="stat"><div class="stat-ico">💬</div><div class="stat-num" id="k0">0</div><div class="stat-lbl">Conversaciones</div></div>
+    <div class="stat"><div class="stat-ico">📨</div><div class="stat-num" id="k1">0</div><div class="stat-lbl">Propuestas</div></div>
+    <div class="stat"><div class="stat-ico">💸</div><div class="stat-num" id="k2">0</div><div class="stat-lbl">Ventas</div></div>
+    <div class="stat"><div class="stat-ico">🌐</div><div class="stat-num" id="k3">0</div><div class="stat-lbl">Contactos</div></div>
+  </div>
+
+  <!-- HOJA DE RUTA -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Hoja de Ruta — Nuestros 5 Encuentros</div></div>
+    <p class="hint">Cada encuentro trabaja módulos específicos del tablero, pero la herramienta es tuya: seguí usándola mucho después del proceso.</p>
+    <div class="road">
+      <div class="road-step" onclick="goMod(1,document.querySelectorAll('.nb')[1])"><div class="road-num">1</div><div class="road-ttl">Idea & Recursos</div><div class="road-desc">Pájaro en mano, problemas detectados y elección de idea con foco.</div></div>
+      <div class="road-step" onclick="goMod(2,document.querySelectorAll('.nb')[2])"><div class="road-num">2</div><div class="road-ttl">Foco & Propuesta de Valor</div><div class="road-desc">Hipótesis, objetivo SMART, lienzo de propuesta de valor.</div></div>
+      <div class="road-step" onclick="goMod(3,document.querySelectorAll('.nb')[3])"><div class="road-num">3</div><div class="road-ttl">Modelo de Negocio</div><div class="road-desc">FODA, Business Model Canvas y semáforo de madurez.</div></div>
+      <div class="road-step" onclick="goMod(4,document.querySelectorAll('.nb')[4])"><div class="road-num">4</div><div class="road-ttl">Pitch, Fachada & Red</div><div class="road-desc">Comunicación, presencia digital y mapa de influencia comercial.</div></div>
+      <div class="road-step" onclick="goMod(6,document.querySelectorAll('.nb')[6])"><div class="road-num">5</div><div class="road-ttl">Validación & Finanzas</div><div class="road-desc">Conversaciones de validación, precio y plan de sostenimiento.</div></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Bitácora de Energía</div></div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Emprender es una maratón. ¿Cómo está tu energía hoy?</p>
+      <div class="en-btns">
+        <div class="en-btn" id="en-alta" onclick="logEnergy('alta')" role="button" tabindex="0"><div class="en-ico">⚡</div><div class="en-lbl">Alta</div></div>
+        <div class="en-btn" id="en-media" onclick="logEnergy('media')" role="button" tabindex="0"><div class="en-ico">🌤️</div><div class="en-lbl">Media</div></div>
+        <div class="en-btn" id="en-baja" onclick="logEnergy('baja')" role="button" tabindex="0"><div class="en-ico">🌿</div><div class="en-lbl">Baja</div></div>
+      </div>
+      <div id="enCW" style="display:none;margin:2px 0 12px;height:92px;position:relative"><canvas id="enC"></canvas></div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px">Historial</div>
+      <div class="en-log" id="enLog"><div class="en-empty">Aún no registraste ningún día. ¡Empezá hoy!</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-ttl"><div class="dot"></div>Rituales del Emprendedor/a</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:11.5px;font-weight:700;color:var(--p)" id="ritCnt">0/0</span>
+          <button class="btn btn-out btn-xs" onclick="addRitual()">+ Agregar</button>
+        </div>
+      </div>
+      <p class="hint">Hábitos semanales que sostienen el proyecto. Se reinician cuando vos lo decidís — editá, sumá o quitá según tu etapa.</p>
+      <div id="ritList"></div>
+      <button class="btn btn-gh btn-sm" style="margin-top:8px" onclick="resetRituals()">↺ Reiniciar semana</button>
+    </div>
+  </div>
+
+  <!-- SNAPSHOT FOCO -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Mi Foco Esta Semana</div><button class="btn btn-out btn-sm" onclick="goMod(2,document.querySelectorAll('.nb')[2])">Editar Foco →</button></div>
+    <div class="g3">
+      <div style="background:var(--surf);border-radius:9px;padding:12px"><div style="font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Objetivo SMART</div><div style="font-size:12.5px;color:var(--txt2)" id="snObj">—</div></div>
+      <div style="background:var(--surf);border-radius:9px;padding:12px"><div style="font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Acción Inmediata (ZDP)</div><div style="font-size:12.5px;color:var(--txt2)" id="snZdp">—</div></div>
+      <div style="background:var(--surf);border-radius:9px;padding:12px"><div style="font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Indicador de Éxito</div><div style="font-size:12.5px;color:var(--txt2)" id="snInd">—</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MOD 1: IDEA & PÁJARO EN MANO ══ -->
+<section class="mod" id="m1">
+  <div class="mod-tag">💡 Módulo 1</div>
+  <h1 class="mod-title">Idea & Pájaro en Mano</h1>
+  <p class="mod-desc">No empezás de cero: empezás desde lo que ya tenés. Inventariá tus recursos, detectá problemas reales de mercado y elegí UNA idea para trabajar con foco.</p>
+
+  <div class="tabs">
+    <button class="tab on" onclick="swTab('idea','t-inv',this)">🪶 Pájaro en Mano</button>
+    <button class="tab" onclick="swTab('idea','t-prob',this)">🔍 Problemas Detectados</button>
+    <button class="tab" onclick="swTab('idea','t-mat',this)">⚖️ Matriz de Ideas</button>
+  </div>
+
+  <div class="tc on" id="t-inv">
+    <div class="net-phi"><strong>Principio del Pájaro en Mano (Effectuation):</strong> quienes emprenden con éxito no arrancan de una idea brillante, sino de tres preguntas: ¿quién soy?, ¿qué sé hacer?, ¿a quién conozco? Lo que ya tenés es tu capital inicial.</div>
+    <div class="g2">
+      <div class="card">
+        <div class="fld"><label class="lbl">¿Qué sé hacer? (habilidades y oficios)</label><textarea class="ta" id="inv_hab" placeholder="Habilidades técnicas, blandas, hobbies profesionalizables..." oninput="saveInv()"></textarea></div>
+        <div class="fld"><label class="lbl">¿Qué experiencia acumulé?</label><textarea class="ta" id="inv_exp" placeholder="Trabajos, proyectos, contextos donde resolviste problemas..." oninput="saveInv()"></textarea></div>
+      </div>
+      <div class="card">
+        <div class="fld"><label class="lbl">¿A quién conozco? (red de contactos)</label><textarea class="ta" id="inv_red" placeholder="Comunidades, colegas, sectores donde tenés llegada..." oninput="saveInv()"></textarea></div>
+        <div class="fld"><label class="lbl">¿Qué recursos tengo disponibles?</label><textarea class="ta" id="inv_rec" placeholder="Tiempo, herramientas, espacio, ahorro, marca personal..." oninput="saveInv()"></textarea></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Mis Fortalezas Diferenciales</div></div>
+      <div class="fld"><textarea class="ta" id="inv_dif" placeholder="¿Qué hacés de manera distinta o con mayor claridad que otras personas? ¿Qué feedback positivo recibís siempre?" oninput="saveInv()"></textarea></div>
+    </div>
+  </div>
+
+  <div class="tc" id="t-prob">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Problemas de Mercado Detectados</div></div>
+      <p class="hint">Un negocio nace de un problema que alguien quiere resolver (y pagaría por resolver). Anotá los problemas concretos que ves a tu alrededor: en tu trabajo, tu barrio, tu red. Ej: "Personas que trabajan todo el día y no tienen tiempo para X".</p>
+      <div class="fld"><textarea class="ta" id="prob_txt" style="min-height:140px" placeholder="1. ...&#10;2. ...&#10;3. ..." oninput="saveInv()"></textarea></div>
+      <div class="tip-box"><strong>💡 Tip:</strong> en la Bóveda de IA tenés un prompt para detectar oportunidades cruzando tu inventario con tendencias del mercado.</div>
+    </div>
+  </div>
+
+  <div class="tc" id="t-mat">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Matriz de Elección de Idea</div><button class="btn btn-out btn-sm" onclick="addIdea()">+ Agregar idea</button></div>
+      <p class="hint">Cargá tus ideas candidatas y puntualas del 1 al 10. <strong>Score = Entusiasmo + Viabilidad</strong>. La fila verde es tu idea con más potencial — el objetivo es elegir UNA y dejar de cambiar cada semana.</p>
+      <div class="idea-hdr"><span>Idea</span><span>Problema que resuelve</span><span>Cliente posible</span><span>Entusiasmo</span><span>Viabilidad</span><span>Score</span><span></span></div>
+      <div id="ideaList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MOD 2: FOCO ESTRATÉGICO ══ -->
+<section class="mod" id="m2">
+  <div class="mod-tag">🎯 Módulo 2</div>
+  <h1 class="mod-title">Foco Estratégico</h1>
+  <p class="mod-desc">Bajá la idea elegida a una hipótesis concreta y accionable. Todo lo que completes acá alimenta los prompts de la Bóveda de IA.</p>
+
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Ficha de Foco</div></div>
+        <div class="fld"><label class="lbl">Mi Hipótesis de Propuesta</label><textarea class="ta" id="f_hip" placeholder="Desarrollo [producto o servicio] para [perfil específico] que necesita [problema concreto]." oninput="saveFoco()"></textarea></div>
+        <div class="fld"><label class="lbl">Mi Objetivo SMART</label><textarea class="ta" id="f_smart" placeholder="Ej: contactar a 8 personas del perfil definido y obtener 3 conversaciones de validación en 15 días." oninput="saveFoco()"></textarea></div>
+        <div class="fld"><label class="lbl">Mi Brecha Principal</label><input class="inp" id="f_bre" type="text" placeholder="¿Qué te separa hoy de ofrecer esto de forma profesional?" oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">Mi Acción Inmediata (ZDP)</label><input class="inp" id="f_zdp" type="text" placeholder="El micro-paso de esta semana. Ej: redactar el mensaje inicial y enviarlo a 5 contactos." oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">Mi Indicador de Éxito</label><input class="inp" id="f_ind" type="text" placeholder="Evidencia concreta de que la acción se cumplió." oninput="saveFoco()"></div>
+        <button class="btn btn-p" onclick="saveFoco();toast('💾 Foco guardado','ok')">💾 Guardar Foco</button>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Motivación & Cuidados</div></div>
+        <div class="fld"><label class="lbl">¿Por qué quiero generar ingresos de forma independiente?</label><textarea class="ta" id="f_mot" placeholder="Tu propósito. Lo que sostiene el esfuerzo cuando cuesta." oninput="saveFoco()"></textarea></div>
+        <div class="fld"><label class="lbl">Limitaciones / No negociables</label><input class="inp" id="f_neg" type="text" placeholder="Ej: horarios compatibles con mi vida personal, modalidad híbrida..." oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">Checklist emocional — ¿cómo quiero sentirme emprendiendo?</label><input class="inp" id="f_emo" type="text" placeholder="Al menos tres emociones (ej: autonomía, estabilidad, entusiasmo)" oninput="saveFoco()"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Lienzo de Propuesta de Valor</div></div>
+        <div class="fld"><label class="lbl">1 · Habilidad principal que ofrezco</label><input class="inp" id="pv1" type="text" oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">2 · Cliente ideal</label><input class="inp" id="pv2" type="text" placeholder="Perfil específico, no 'todo el mundo'" oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">3 · Problema que tiene ese cliente</label><input class="inp" id="pv3" type="text" oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">4 · Situación donde aparece ese problema</label><input class="inp" id="pv4" type="text" oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">5 · Solución que puedo ofrecer</label><input class="inp" id="pv5" type="text" oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">6 · Beneficio que obtiene el cliente</label><input class="inp" id="pv6" type="text" placeholder="Resultado tangible, no características" oninput="saveFoco()"></div>
+        <div class="fld"><label class="lbl">7 · Pregunta de validación</label><input class="inp" id="pv7" type="text" placeholder="La pregunta que le harías a un cliente potencial para validar el problema" oninput="saveFoco()"></div>
+        <div class="tip-box"><strong>Fórmula de síntesis:</strong> "Ayudo a <em>[2]</em> que enfrentan <em>[3]</em> cuando <em>[4]</em>, ofreciendo <em>[5]</em> para lograr <em>[6]</em>."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MOD 3: MODELO DE NEGOCIO ══ -->
+<section class="mod" id="m3">
+  <div class="mod-tag">🧩 Módulo 3</div>
+  <h1 class="mod-title">Modelo de Negocio</h1>
+  <p class="mod-desc">Ordenemos tu proyecto con claridad estratégica: FODA, Business Model Canvas y el semáforo de madurez para saber dónde estás parado/a.</p>
+
+  <div class="tabs">
+    <button class="tab on" onclick="swTab('mod3','t-foda',this)">⚔️ FODA</button>
+    <button class="tab" onclick="swTab('mod3','t-bmc',this)">🗺️ Canvas (BMC)</button>
+    <button class="tab" onclick="swTab('mod3','t-sem',this)">🚦 Semáforo de Madurez</button>
+  </div>
+
+  <div class="tc on" id="t-foda">
+    <div class="card">
+      <p class="hint">Análisis estratégico de tu propuesta actual. Respondé con honestidad — esto es para vos.</p>
+      <div class="foda-grid">
+        <div class="foda-box foda-f"><h4>💪 Fortalezas</h4><p>¿Qué hacés mejor que la mayoría en tu rubro? ¿Qué recursos ya tenés que otros no? ¿Qué feedback positivo recibiste?</p><textarea class="ta" id="foda_f" oninput="saveFoda()"></textarea></div>
+        <div class="foda-box foda-o"><h4>🚀 Oportunidades</h4><p>¿Qué tendencia del mercado te favorece? ¿Qué problemas frecuentes aún no están bien resueltos? ¿Qué nicho está poco atendido?</p><textarea class="ta" id="foda_o" oninput="saveFoda()"></textarea></div>
+        <div class="foda-box foda-d"><h4>🔧 Debilidades</h4><p>¿Qué parte de tu propuesta aún no está clara? ¿Qué habilidad necesitás fortalecer? ¿Qué te genera inseguridad al vender?</p><textarea class="ta" id="foda_d" oninput="saveFoda()"></textarea></div>
+        <div class="foda-box foda-a"><h4>⚠️ Amenazas</h4><p>¿Qué competencia directa existe? ¿Qué cambios del contexto podrían afectarte? ¿Qué dependencia te hace vulnerable?</p><textarea class="ta" id="foda_a" oninput="saveFoda()"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="t-bmc">
+    <div class="card">
+      <p class="hint">Los 9 bloques de tu modelo de negocio. Empezá por Segmentos y Propuesta de Valor — el resto se ordena solo.</p>
+      <div class="bmc-grid">
+        <div class="bmc-box"><h4>👥 Segmentos de Clientes</h4><p>¿Quién tiene mayor probabilidad de pagar? ¿Con qué segmento empezás a validar?</p><textarea class="ta" id="bmc_seg" oninput="saveBmc()"></textarea></div>
+        <div class="bmc-box"><h4>💎 Propuesta de Valor</h4><p>¿Qué problema específico resolvés? ¿Qué resultado tangible obtiene tu cliente?</p><textarea class="ta" id="bmc_pv" oninput="saveBmc()"></textarea></div>
+        <div class="bmc-box"><h4>📢 Canales</h4><p>¿Dónde te encontraría hoy tu cliente ideal? ¿Cuál es tu canal principal para validar?</p><textarea class="ta" id="bmc_can" oninput="saveBmc()"></textarea></div>
+        <div class="bmc-box"><h4>🤝 Relación con Clientes</h4><p>¿Cómo generás confianza? ¿Cómo acompañás antes, durante y después?</p><textarea class="ta" id="bmc_rel" oninput="saveBmc()"></textarea></div>
+        <div class="bmc-box"><h4>💵 Fuentes de Ingreso</h4><p>¿Cómo cobrás? ¿Por hora, paquete, suscripción? ¿Qué precio tiene lógica?</p><textarea class="ta" id="bmc_ing" oninput="saveBmc()"></textarea></div>
+        <div class="bmc-box"><h4>🧰 Recursos Clave</h4><p>¿Qué necesitás sí o sí para operar? (habilidades, herramientas, tiempo)</p><textarea class="ta" id="bmc_rec" oninput="saveBmc()"></textarea></div>
+        <div class="bmc-box"><h4>⚙️ Actividades Clave</h4><p>¿Qué tareas hacen que el negocio funcione? (producción, venta, entrega)</p><textarea class="ta" id="bmc_act" oninput="saveBmc()"></textarea></div>
+        <div class="bmc-box"><h4>🔗 Socios Clave</h4><p>¿Quiénes te complementan? ¿Qué alianzas facilitan empezar?</p><textarea class="ta" id="bmc_soc" oninput="saveBmc()"></textarea></div>
+        <div class="bmc-box"><h4>📉 Estructura de Costos</h4><p>¿Cuáles son tus costos fijos y variables? ¿Qué es imprescindible pagar?</p><textarea class="ta" id="bmc_cos" oninput="saveBmc()"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="t-sem">
+    <div class="prog-wrap"><div class="prog-row"><span>Madurez del proyecto</span><span id="sem-p">0%</span></div><div class="prog-bar"><div class="prog-fill" id="sem-f" style="width:0%"></div></div></div>
+    <div class="card" id="semList"></div>
+  </div>
+</section>
+
+<!-- ══ MOD 4: PITCH & FACHADA ══ -->
+<section class="mod" id="m4">
+  <div class="mod-tag">🗣️ Módulo 4</div>
+  <h1 class="mod-title">Pitch & Fachada Digital</h1>
+  <p class="mod-desc">Que se entienda qué hacés, para quién y qué cambia después de trabajar con vos — en 30 segundos y en tu presencia digital.</p>
+
+  <div class="tabs">
+    <button class="tab on" onclick="swTab('m4t','t-pitch',this)">🎤 Mi Pitch</button>
+    <button class="tab" onclick="swTab('m4t','t-fach',this)">🏪 Revisión de Fachada Digital</button>
+  </div>
+
+  <div class="tc on" id="t-pitch">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Pitch en 3 Niveles</div></div>
+      <div class="fld">
+        <label class="lbl">Versión Corta — 30 segundos (el gancho)</label>
+        <textarea class="ta" id="pi_c" placeholder="Qué hacés + para quién + qué resuelve. Sin tecnicismos." oninput="savePitch()" rows="3"></textarea>
+      </div>
+      <div class="fld">
+        <label class="lbl">Versión Media — 2 minutos (la conversación)</label>
+        <textarea class="ta" id="pi_m" placeholder="Suma tu diferencial, un ejemplo concreto y la pregunta que abre diálogo." oninput="savePitch()" rows="4"></textarea>
+      </div>
+      <div class="fld">
+        <label class="lbl">Versión Larga — presentación completa</label>
+        <textarea class="ta" id="pi_l" placeholder="Problema → solución → propuesta → evidencia → llamado a la acción." oninput="savePitch()" rows="5"></textarea>
+      </div>
+      <div class="tip-box"><strong>💡 Tip:</strong> en la Bóveda de IA hay prompts para generar y pulir cada versión a partir de tu Lienzo de Propuesta de Valor.</div>
+    </div>
+  </div>
+
+  <div class="tc" id="t-fach">
+    <div class="prog-wrap"><div class="prog-row"><span>Progreso Fachada Digital</span><span id="fa-p">0%</span></div><div class="prog-bar"><div class="prog-fill" id="fa-f" style="width:0%"></div></div></div>
+    <div class="net-phi">Tu fachada digital es tu vidriera: Instagram, LinkedIn, web o catálogo de WhatsApp. Auditá tu pieza mínima de venta con esta checklist — marcá el estado de cada ítem y anotá observaciones.</div>
+    <div class="card" id="fachList"></div>
+  </div>
+</section>
+
+<!-- ══ MOD 5: RED COMERCIAL ══ -->
+<section class="mod" id="m5">
+  <div class="mod-tag">🌐 Módulo 5</div>
+  <h1 class="mod-title">Mapa de Influencia Comercial</h1>
+  <p class="mod-desc">Tus primeros clientes casi siempre llegan por tu red. Activala con intención y cadencia.</p>
+
+  <div class="net-phi">
+    <strong>Tu red no es una herramienta para usar, es un reflejo de quién sos.</strong> El networking comercial no es vender a tus amistades: es contarle a tu red qué estás construyendo y pedir puentes, no favores.<br><br>
+    Mapeá tu <strong>núcleo principal</strong> (te conocen y confían), tu <strong>núcleo secundario</strong> (vínculos a reactivar) y tus <strong>interlocutores estratégicos</strong> (perfiles que podrían comprarte o recomendarte). Si una fila aparece con borde coral, pasaron más de 21 días sin contacto — es momento de retomar.
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="swTab('net','t-np',this)">⭐ Núcleo Principal</button>
+    <button class="tab" onclick="swTab('net','t-ns',this)">🔗 Núcleo Secundario</button>
+    <button class="tab" onclick="swTab('net','t-ni',this)">🎯 Interlocutores Estratégicos</button>
+  </div>
+
+  <div class="tc on" id="t-np">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Personas que te conocen y confían en vos (5-10)</div><button class="btn btn-out btn-sm" onclick="addContact('p')">+ Agregar</button></div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Quienes se mueven para ayudarte: pueden ser tus primeros clientes, testers de tu oferta o quienes te recomienden con otros.</p>
+      <div class="net-hdr"><span>#</span><span>Nombre</span><span>Contacto</span><span>LinkedIn</span><span>Últ. contacto</span><span>Estado</span><span></span><span>📩</span></div>
+      <div id="net-p"></div>
+    </div>
+  </div>
+  <div class="tc" id="t-ns">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Vínculos a reactivar o construir (10-20)</div><button class="btn btn-out btn-sm" onclick="addContact('s')">+ Agregar</button></div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Ex colegas, contactos de otras áreas, personas del sector. Aportan perspectivas nuevas y puentes hacia otros circuitos de clientes.</p>
+      <div class="net-hdr"><span>#</span><span>Nombre</span><span>Contacto</span><span>LinkedIn</span><span>Últ. contacto</span><span>Estado</span><span></span><span>📩</span></div>
+      <div id="net-s"></div>
+    </div>
+  </div>
+  <div class="tc" id="t-ni">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Perfiles que podrían comprarte o recomendarte</div><button class="btn btn-out btn-sm" onclick="addContact('i')">+ Agregar</button></div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Investigá en LinkedIn o Instagram dentro de tus segmentos. La pregunta estratégica: si tuvieras un café virtual de 10 minutos con esta persona, ¿qué le preguntarías?</p>
+      <div class="net-hdr"><span>#</span><span>Nombre</span><span>Contacto</span><span>LinkedIn</span><span>Últ. contacto</span><span>Estado</span><span></span><span>📩</span></div>
+      <div id="net-i"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MOD 6: VALIDACIÓN & VENTAS ══ -->
+<section class="mod" id="m6">
+  <div class="mod-tag">✅ Módulo 6</div>
+  <h1 class="mod-title">Validación & Ventas</h1>
+  <p class="mod-desc">La única validación real es la conversación con clientes potenciales. Registrá cada una, mirá el embudo y evaluá tus reuniones comerciales para mejorar.</p>
+
+  <div class="tabs">
+    <button class="tab on" onclick="swTab('val','t-val',this)">📋 Tablero de Validación</button>
+    <button class="tab" onclick="swTab('val','t-emb',this)">📊 Embudo</button>
+    <button class="tab" onclick="swTab('val','t-evr',this)">📝 Evaluación de Reuniones</button>
+  </div>
+
+  <div class="tc on" id="t-val">
+    <div class="card" style="background:linear-gradient(135deg,rgba(59,53,168,.04),rgba(139,58,143,.04));border-color:rgba(59,53,168,.2)">
+      <div class="card-ttl" style="margin-bottom:8px"><div class="dot"></div>Regla Mom Test</div>
+      <p style="font-size:12.5px;color:var(--txt2);line-height:1.7">Preguntá por el <strong>pasado concreto</strong> ("¿cuándo fue la última vez que te pasó?"), no por opiniones futuras ("¿comprarías esto?"). Los halagos no son validación: buscá evidencia de que el problema existe y duele.</p>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Conversaciones de Validación y Venta</div><button class="btn btn-p btn-sm" onclick="addVal()">+ Nueva conversación</button></div>
+      <div class="val-hdr"><span>Fecha</span><span>Contacto</span><span>Segmento</span><span>Canal</span><span>Oferta presentada</span><span>Interés</span><span>Objeción / Aprendizaje</span><span>Status</span><span></span></div>
+      <div id="valList"></div>
+    </div>
+  </div>
+
+  <div class="tc" id="t-emb">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Embudo de Conversión</div></div>
+      <div class="funnel">
+        <div class="funnel-col"><div class="funnel-lbl">Conversaciones</div><div class="funnel-outer"><div class="funnel-inner" id="fb0" style="height:0%;background:linear-gradient(180deg,#3b35a8,#8b3a8f)"></div></div><div class="funnel-num" id="fn0">0</div><div class="funnel-pct" id="fp0">—</div></div>
+        <div class="funnel-arr">→</div>
+        <div class="funnel-col"><div class="funnel-lbl">Interés alto</div><div class="funnel-outer"><div class="funnel-inner" id="fb1" style="height:0%;background:linear-gradient(180deg,#8b3a8f,#d4522a)"></div></div><div class="funnel-num" id="fn1">0</div><div class="funnel-pct" id="fp1">—</div></div>
+        <div class="funnel-arr">→</div>
+        <div class="funnel-col"><div class="funnel-lbl">Propuestas</div><div class="funnel-outer"><div class="funnel-inner" id="fb2" style="height:0%;background:linear-gradient(180deg,#d4522a,#d97706)"></div></div><div class="funnel-num" id="fn2">0</div><div class="funnel-pct" id="fp2">—</div></div>
+        <div class="funnel-arr">→</div>
+        <div class="funnel-col"><div class="funnel-lbl">Ventas</div><div class="funnel-outer"><div class="funnel-inner" id="fb3" style="height:0%;background:linear-gradient(180deg,#059669,#3b35a8)"></div></div><div class="funnel-num" id="fn3">0</div><div class="funnel-pct" id="fp3">—</div></div>
+      </div>
+      <div class="tip-box"><strong>Lectura del embudo:</strong> si tenés muchas conversaciones pero poco interés, revisá tu segmento o tu propuesta. Si hay interés pero no hay propuestas, el problema es tu llamado a la acción. Si hay propuestas sin ventas, revisá precio y objeciones.</div>
+    </div>
+  </div>
+
+  <div class="tc" id="t-evr">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:13px">
+      <button class="btn btn-p" onclick="addEval()">+ Nueva evaluación</button>
+    </div>
+    <div id="evalsCont"></div>
+  </div>
+</section>
+
+<!-- ══ MOD 7: FINANZAS ══ -->
+<section class="mod" id="m7">
+  <div class="mod-tag">💰 Módulo 7</div>
+  <h1 class="mod-title">Finanzas Simples</h1>
+  <p class="mod-desc">Tu precio no se improvisa: se calcula desde la vida que querés sostener. Dos herramientas mínimas para arrancar con lógica.</p>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Calculadora de Valor Hora</div></div>
+      <p class="hint">¿Cuánto tiene que valer tu hora para sostener la vida que diseñaste?</p>
+      <div class="fld"><label class="lbl">Ingreso mensual objetivo ($)</label><input class="inp" id="fi_ing" type="number" min="0" placeholder="Lo que necesitás + lo que querés ganar" oninput="calcFin()"></div>
+      <div class="fld"><label class="lbl">Costos mensuales del proyecto ($)</label><input class="inp" id="fi_cos" type="number" min="0" placeholder="Herramientas, monotributo, insumos, marketing..." oninput="calcFin()"></div>
+      <div class="g2">
+        <div class="fld"><label class="lbl">Horas disponibles por semana</label><input class="inp" id="fi_hs" type="number" min="1" max="80" placeholder="ej. 20" oninput="calcFin()"></div>
+        <div class="fld"><label class="lbl">% de horas facturables</label><input class="inp" id="fi_pf" type="number" min="10" max="100" placeholder="ej. 60 — el resto es venta y gestión" oninput="calcFin()"></div>
+      </div>
+      <div class="fin-res" style="margin-top:6px">
+        <div class="fin-res-num" id="fi_res">—</div>
+        <div class="fin-res-lbl">Valor hora mínimo</div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:6px" id="fi_det">Completá los campos para calcular</div>
+      </div>
+      <div class="tip-box" style="margin-top:12px"><strong>⚠️ Importante:</strong> este es tu piso, no tu precio. El precio final se define por el valor que generás para el cliente — nunca por debajo de este número.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><div class="card-ttl"><div class="dot"></div>Punto de Equilibrio</div></div>
+      <p class="hint">¿Cuántas ventas necesitás por mes para no perder plata?</p>
+      <div class="fld"><label class="lbl">Costos fijos mensuales ($)</label><input class="inp" id="pe_cf" type="number" min="0" placeholder="Lo que pagás vendas o no vendas" oninput="calcFin()"></div>
+      <div class="fld"><label class="lbl">Precio de venta por unidad/servicio ($)</label><input class="inp" id="pe_pr" type="number" min="0" oninput="calcFin()"></div>
+      <div class="fld"><label class="lbl">Costo variable por unidad/servicio ($)</label><input class="inp" id="pe_cv" type="number" min="0" placeholder="Lo que te cuesta cada entrega (insumos, comisiones)" oninput="calcFin()"></div>
+      <div class="fin-res" style="margin-top:6px">
+        <div class="fin-res-num" id="pe_res">—</div>
+        <div class="fin-res-lbl">Ventas mínimas por mes</div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:6px" id="pe_det">Completá los campos para calcular</div>
+      </div>
+      <div class="tip-box" style="margin-top:12px"><strong>💡 Lectura:</strong> si el número te parece inalcanzable, tenés tres palancas: subir el precio, bajar costos fijos o cambiar el formato de tu oferta (paquetes, grupal, digital).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MOD 8: BÓVEDA DE IA ══ -->
+<section class="mod" id="m8">
+  <div class="mod-tag">🤖 Módulo 8</div>
+  <h1 class="mod-title">Bóveda de IA & Recursos</h1>
+  <p class="mod-desc">Prompts diseñados para cada etapa. Los que muestran la insignia verde se completan automáticamente con los datos que cargaste en el tablero.</p>
+
+  <div class="tabs">
+    <button class="tab on" onclick="swTab('ia','t-pr',this)">🤖 Prompts</button>
+    <button class="tab" onclick="swTab('ia','t-res',this)">🧰 Herramientas Útiles</button>
+  </div>
+
+  <div class="tc on" id="t-pr"><div id="promptsCont"></div></div>
+  <div class="tc" id="t-res"><div id="resCont"></div></div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="ftr">
+  <img src="data:image/jpeg;base64,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" alt="Tenkai" class="ftr-logo">
+  <div class="ftr-links">
+    <a href="https://tenkai.com.ar" target="_blank" class="ftr-link">tenkai.com.ar</a>
+    <a href="mailto:esteban@tenkai.com.ar" class="ftr-link">esteban@tenkai.com.ar</a>
+    <a href="https://wa.me/5491170657746" target="_blank" class="ftr-link">WhatsApp</a>
+    <a href="https://linkedin.com/in/toledoesteban" target="_blank" class="ftr-link">LinkedIn</a>
+    <a href="https://instagram.com/esteban.tenkai" target="_blank" class="ftr-link">Instagram</a>
+    <a href="https://tiktok.com/@esteban.tenkai" target="_blank" class="ftr-link">TikTok</a>
+    <a href="https://facebook.com/tenkai.esteban" target="_blank" class="ftr-link">Facebook</a>
+  </div>
+  <div class="ftr-copy">© 2026 TENKAI CONSULTING</div>
+</footer>
+
+<!-- CELEBRACIÓN -->
+<div class="celeb-ov" id="celebOv">
+  <div class="celeb-box" style="position:relative">
+    <div class="confetti-wrap" id="confWrap"></div>
+    <div class="celeb-emoji">🎉</div>
+    <div class="celeb-title">¡Primera venta!</div>
+    <div class="celeb-msg" id="celebMsg"></div>
+    <div class="celeb-sign">— Equipo Tenkai Consulting</div>
+    <button class="btn btn-p" style="width:100%;justify-content:center" onclick="closeCeleb()">Seguir construyendo →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toastEl"></div>
+
+<!-- ══ JAVASCRIPT ══ -->
+<script>
+// ─── DATA CONSTANTS ───────────────────────────────────
+const SEM_DATA = [
+  { sec:'Identidad', items:['Tengo claro qué sé hacer y qué me diferencia','Identifiqué fortalezas reales y recursos actuales','Elegí una idea concreta para trabajar','Dejé de cambiar de idea cada semana'] },
+  { sec:'Problema y Cliente', items:['Sé exactamente qué problema resuelvo','Tengo definido mi cliente ideal','Sé quién es el perfil con mayor probabilidad de pagar','Hice al menos 3 conversaciones de validación'] },
+  { sec:'Oferta Clara', items:['Mi oferta está empaquetada en niveles claros','Puedo explicar lo que hago en menos de 30 segundos','Mi precio tiene lógica y no es improvisado','Mi nombre y descripción son coherentes'] },
+  { sec:'Conversión Inicial', items:['Tengo un canal mínimo de venta funcionando','Recibí consultas o interés genuino','Presenté al menos una propuesta formal','Concreté mi primera venta'] },
+  { sec:'Sostenibilidad', items:['Tengo una rutina semanal de trabajo en el proyecto','Registro mis números básicos (ingresos y costos)','Sé cuánto necesito vender para estar en equilibrio','Puedo sostener el proyecto sin quemarme'] },
+];
+
+const FACH_DATA = [
+  { sec:'Claridad del Mensaje', items:['El nombre del proyecto es claro, fácil de entender y coherente','La biografía o encabezado explica qué hago en una frase','Incluye palabras clave que mi cliente realmente buscaría','Está claro a quién ayudo y en qué contexto específico','Se entiende el problema concreto que resuelvo','El resultado que ofrezco es específico y no abstracto','Mi propuesta evita frases genéricas o demasiado amplias'] },
+  { sec:'Oferta y Precios', items:['Mi oferta está estructurada en niveles claros y diferenciados','Se entiende qué incluye cada nivel de servicio o producto','Tengo definidos internamente mis precios, costos y tiempos','Se especifica cuánto tiempo implica cada nivel de servicio'] },
+  { sec:'Identidad Visual', items:['Incluyo imágenes o recursos visuales que muestran lo que hago','Las imágenes están en buena calidad y son coherentes con mi propuesta','Los recursos visuales refuerzan profesionalismo','La paleta de colores es consistente en todo el perfil','La tipografía es legible y coherente con el posicionamiento'] },
+  { sec:'Conversión', items:['Hay un llamado a la acción claro (escribime, agendá, comprá)','El canal de contacto funciona y respondo rápido','Hay evidencia social: testimonios, casos o trabajos mostrados','El proceso para comprar o contratar es simple y sin fricción'] },
+];
+
+const EVAL_DATA = [
+  { cat:'Claridad de la Oferta', items:['Expliqué con claridad qué hago','Expliqué qué problema resuelvo','Pude explicar a quién está dirigida mi oferta','Comuniqué beneficios (no solo características)','Sinteticé en menos de 60 segundos'] },
+  { cat:'Diagnóstico y Escucha', items:['Hice preguntas antes de ofrecer precio','Escuché el problema completo sin interrumpir','Identifiqué la necesidad real del cliente','Adapté mi propuesta a lo que escuché','Validé que entendí correctamente su situación'] },
+  { cat:'Seguridad al Comunicar Precio', items:['Dije el precio con seguridad','Evité justificar en exceso el valor','Sostuve el silencio después de decir el precio','Manejé la objeción sin bajar el precio de inmediato'] },
+  { cat:'Cierre y Próximos Pasos', items:['Propuse un próximo paso concreto','Acordé fecha o compromiso de seguimiento','Registré los aprendizajes de la conversación'] },
+];
+
+const DEFAULT_RITUALS = [
+  'Tener 2 conversaciones de validación o venta',
+  'Contactar 3 personas de mi mapa de influencia',
+  'Publicar 1 contenido sobre mi proyecto',
+  'Dedicar 3 bloques de trabajo profundo al proyecto',
+  'Registrar mis números y aprendizajes de la semana',
+];
+
+const ENERGY_MSGS = {
+  alta:'¡A aprovecharla! Día ideal para conversaciones de venta y acciones que dan vértigo.',
+  media:'Buen día para avanzar en tareas de producción y contenido.',
+  baja:'Bajá un cambio. Tareas suaves: ordenar, leer, planificar. Emprender también es descansar.',
+};
+const ENERGY_ICONS = { alta:'⚡', media:'🌤️', baja:'🌿' };
+
+const VAL_STATUS = ['Pendiente','Seguimiento','Propuesta enviada','Venta 🎉','No avanza'];
+const NET_STATUS = ['Sin contactar','Contactado/a','Reunión agendada','Me presentó a alguien','Cliente potencial','Cliente 🎉'];
+
+const RESOURCES = [
+  { grp:'Inspiración y Validación', items:[
+    ['💡','Idea Browser','https://www.ideabrowser.com/','Buscar ideas de proyectos','Lluvia de ideas e inspiración'],
+    ['📋','Google Forms','https://forms.google.com','Encuestas para validar problemas','Ideal para entrevistas tipo Mom Test'],
+    ['🗨️','Typeform','https://www.typeform.com','Formularios conversacionales','Mejora la percepción de marca'],
+    ['⚡','Tally','https://tally.so','Formularios gratuitos y simples','Útil para validaciones rápidas sin fricción'],
+  ]},
+  { grp:'Propuesta y Marca', items:[
+    ['🎨','Canva','https://www.canva.com','PDFs, presentaciones y piezas para redes','Profesionalizá tu fachada sin diseñador/a'],
+    ['✨','Gamma','https://gamma.app','Presentaciones y documentos con IA','Portafolio o propuesta comercial en minutos'],
+    ['🧠','Notion','https://www.notion.so','Organización + IA','Centro operativo del negocio'],
+    ['🏷️','Namelix','https://namelix.com','Nombres comerciales con IA','Desbloquea el proceso creativo'],
+    ['🖼️','Looka','https://looka.com','Logos básicos con IA','Validá antes de invertir en diseño'],
+  ]},
+  { grp:'Organización y Finanzas', items:[
+    ['📌','Trello','https://trello.com','Gestión visual de tareas','Separar producción y ventas mejora el foco'],
+    ['🗂️','ClickUp','https://clickup.com','Gestión integral de proyectos','Escalable si el negocio crece'],
+    ['💵','Wave','https://www.waveapps.com','Control simple de ingresos y gastos','Ideal para servicios independientes'],
+    ['📊','Profit First Calculator','https://profitfirstcalculator.com','Simulador de distribución de ingresos','Lógica de ganancia primero'],
+  ]},
+  { grp:'Canales de Venta', items:[
+    ['💬','WhatsApp Business','https://www.whatsapp.com/business','Catálogo y respuestas automáticas','Canal clave en LATAM para primeras ventas'],
+    ['🌍','Fiverr','https://www.fiverr.com','Servicios paquetizados','Funciona mejor con nichos concretos'],
+    ['🌐','Upwork','https://www.upwork.com','Marketplace internacional','Requiere perfil optimizado y propuesta clara'],
+  ]},
+];
+
+// ─── STATE ─────────────────────────────────────────────
+const LS = 'tenkai_empre_v1';
+let S = {};
+
+function loadS() {
+  try { const r = localStorage.getItem(LS); if(r) S = JSON.parse(r); } catch(e) {}
+  S.name = S.name||''; S.proj = S.proj||'';
+  S.enLog = S.enLog||[];
+  S.rituals = S.rituals||DEFAULT_RITUALS.map(t=>({t,done:false}));
+  S.inv = S.inv||{};
+  S.ideas = S.ideas||[];
+  S.foco = S.foco||{};
+  S.foda = S.foda||{};
+  S.bmc = S.bmc||{};
+  S.sem = S.sem||{};
+  S.pitch = S.pitch||{};
+  S.fachSt = S.fachSt||{}; S.fachObs = S.fachObs||{};
+  S.netP = S.netP||[]; S.netS = S.netS||[]; S.netI = S.netI||[];
+  S.vals = S.vals||[];
+  S.evals = S.evals||[];
+  S.fin = S.fin||{};
+  S.lastBackup = S.lastBackup||0;
+  S.bkSnooze = S.bkSnooze||0;
+  S.celebrated = S.celebrated||false;
+}
+
+function save() {
+  try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e) {}
+  updateProgress(); updateSnap(); updateStats();
+}
+
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ─── NAVIGATION ────────────────────────────────────────
+function goMod(n, btn) {
+  document.querySelectorAll('.mod').forEach((m,i) => m.classList.toggle('on', i===n));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  if(window.innerWidth<=920) toggleSb(false);
+  if(n===0) setTimeout(buildEnChart, 60);
+  if(n===6) setTimeout(updateFunnel, 60);
+  if(n===8) renderPrompts();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleSb(force) {
+  const sb = document.getElementById('sbEl'), bk = document.getElementById('sbBk');
+  const open = force!==undefined ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  bk.classList.toggle('on', open);
+}
+function swTab(grp, tid, btn) {
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  btn.closest('.mod').querySelectorAll('.tc').forEach(tc => tc.classList.remove('on'));
+  document.getElementById(tid).classList.add('on');
+  if(tid==='t-emb') setTimeout(updateFunnel, 60);
+}
+
+// ─── ONBOARDING ────────────────────────────────────────
+function doOnboard() {
+  const n = document.getElementById('obName').value.trim();
+  if(!n) { document.getElementById('obName').focus(); return; }
+  S.name = n;
+  S.proj = document.getElementById('obProj').value.trim();
+  save();
+  document.getElementById('obOv').style.display = 'none';
+  updateGreet();
+}
+function updateGreet() {
+  const n = S.name||'emprendedor/a';
+  const p = S.proj ? ` · <span style="color:var(--muted)">${esc(S.proj)}</span>` : '';
+  document.getElementById('hdrGreet').innerHTML = `Hola, <strong>${esc(n)}</strong> 👋${p}`;
+  document.getElementById('welcomeTitle').textContent = `¡Hola, ${n}!`;
+}
+
+// ─── ENERGY ────────────────────────────────────────────
+function logEnergy(lvl) {
+  const today = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const last = S.enLog[S.enLog.length-1];
+  if(last && last.date === today) { last.lvl = lvl; last.msg = ENERGY_MSGS[lvl]; }
+  else S.enLog.push({ date:today, lvl, msg:ENERGY_MSGS[lvl] });
+  save(); renderEnLog(); buildEnChart(); markEnergyToday();
+  toast('✅ Energía registrada para hoy','ok');
+}
+function markEnergyToday() {
+  const today = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const last = S.enLog[S.enLog.length-1];
+  ['alta','media','baja'].forEach(l=>document.getElementById('en-'+l).classList.remove('on-'+l));
+  if(last && last.date===today) document.getElementById('en-'+last.lvl).classList.add('on-'+last.lvl);
+}
+function renderEnLog() {
+  const log = document.getElementById('enLog');
+  const entries = S.enLog || [];
+  if(!entries.length) { log.innerHTML = '<div class="en-empty">Aún no registraste ningún día. ¡Empezá hoy!</div>'; return; }
+  log.innerHTML = [...entries].reverse().map(e => `
+    <div class="en-log-item"><span class="en-log-date">${esc(e.date)}</span><span class="en-log-badge">${ENERGY_ICONS[e.lvl]||'•'}</span><span class="en-log-msg" style="font-size:11.5px">${esc(e.msg)}</span></div>`).join('');
+}
+let enChart = null;
+function buildEnChart() {
+  const wrap = document.getElementById('enCW');
+  const entries = (S.enLog||[]).slice(-14);
+  if(!window.Chart || entries.length<2) { wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const map = {alta:3, media:2, baja:1};
+  const ctx = document.getElementById('enC');
+  if(enChart) enChart.destroy();
+  enChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels:entries.map(e=>e.date.slice(0,5)), datasets:[{ data:entries.map(e=>map[e.lvl]||0), borderColor:'#3b35a8', backgroundColor:'rgba(59,53,168,.09)', fill:true, tension:.35, pointRadius:3, pointBackgroundColor:'#3b35a8' }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>({1:'Baja',2:'Media',3:'Alta'})[c.raw]||''}} },
+      scales:{ y:{min:.5,max:3.5,ticks:{stepSize:1,callback:v=>({1:'🌿',2:'🌤️',3:'⚡'})[v]||''},grid:{color:'#eeeef6'}}, x:{grid:{display:false},ticks:{font:{size:9},maxRotation:0}} } }
+  });
+}
+
+// ─── RITUALES ──────────────────────────────────────────
+function renderRituals() {
+  const c = document.getElementById('ritList');
+  c.innerHTML = (S.rituals||[]).map((r,i)=>`
+    <div class="ritual-item">
+      <div class="ritual-chk ${r.done?'ck':''}" onclick="toggleRitual(${i})" role="checkbox" aria-checked="${r.done}" tabindex="0">${r.done?'<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
+      <input class="ritual-edit-inp" value="${esc(r.t)}" placeholder="Ritual personalizado..." onchange="editRitual(${i},this.value)" style="${r.done?'text-decoration:line-through;color:var(--muted)':''}">
+      <button class="net-del" onclick="delRitual(${i})" title="Eliminar">✕</button>
+    </div>`).join('');
+  const done = (S.rituals||[]).filter(r=>r.done).length;
+  document.getElementById('ritCnt').textContent = done+'/'+(S.rituals||[]).length;
+}
+function toggleRitual(i){ S.rituals[i].done=!S.rituals[i].done; save(); renderRituals(); }
+function editRitual(i,v){ S.rituals[i].t=v; save(); }
+function addRitual(){ S.rituals.push({t:'',done:false}); save(); renderRituals(); }
+function delRitual(i){ S.rituals.splice(i,1); save(); renderRituals(); }
+function resetRituals(){ S.rituals.forEach(r=>r.done=false); save(); renderRituals(); toast('↺ Semana reiniciada','ok'); }
+
+// ─── INVENTARIO / IDEAS ────────────────────────────────
+const INV_F = ['inv_hab','inv_exp','inv_red','inv_rec','inv_dif','prob_txt'];
+function saveInv(){ INV_F.forEach(id=>S.inv[id]=document.getElementById(id).value); save(); }
+function loadInv(){ INV_F.forEach(id=>{ if(S.inv[id]) document.getElementById(id).value=S.inv[id]; }); }
+
+function addIdea(){ S.ideas.push({n:'',p:'',c:'',e:5,v:5}); save(); renderIdeas(); }
+function delIdea(i){ S.ideas.splice(i,1); save(); renderIdeas(); }
+function updIdea(i,k,v){ S.ideas[i][k]=(k==='e'||k==='v')?Math.max(1,Math.min(10,+v||1)):v; save(); renderIdeas(); }
+function renderIdeas(){
+  const c = document.getElementById('ideaList');
+  if(!S.ideas.length){ c.innerHTML='<div class="en-empty">Sin ideas cargadas aún. Agregá tus candidatas y compará.</div>'; return; }
+  const best = Math.max(...S.ideas.map(x=>(+x.e||0)+(+x.v||0)));
+  c.innerHTML = S.ideas.map((x,i)=>{
+    const sc=(+x.e||0)+(+x.v||0);
+    return `<div class="idea-row ${sc===best&&S.ideas.length>1?'top':''}">
+      <input class="net-inp" value="${esc(x.n)}" placeholder="Nombre de la idea" onchange="updIdea(${i},'n',this.value)">
+      <input class="net-inp" value="${esc(x.p)}" placeholder="Problema" onchange="updIdea(${i},'p',this.value)">
+      <input class="net-inp" value="${esc(x.c)}" placeholder="Cliente" onchange="updIdea(${i},'c',this.value)">
+      <input class="net-inp" type="number" min="1" max="10" value="${x.e}" onchange="updIdea(${i},'e',this.value)" style="text-align:center">
+      <input class="net-inp" type="number" min="1" max="10" value="${x.v}" onchange="updIdea(${i},'v',this.value)" style="text-align:center">
+      <span class="idea-score">${sc}</span>
+      <button class="net-del" onclick="delIdea(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ─── FOCO / PV / FODA / BMC / PITCH ────────────────────
+const FOCO_F = ['f_hip','f_smart','f_bre','f_zdp','f_ind','f_mot','f_neg','f_emo','pv1','pv2','pv3','pv4','pv5','pv6','pv7'];
+function saveFoco(){ FOCO_F.forEach(id=>S.foco[id]=document.getElementById(id).value); save(); }
+function loadFoco(){ FOCO_F.forEach(id=>{ if(S.foco[id]) document.getElementById(id).value=S.foco[id]; }); }
+const FODA_F = ['foda_f','foda_o','foda_d','foda_a'];
+function saveFoda(){ FODA_F.forEach(id=>S.foda[id]=document.getElementById(id).value); save(); }
+function loadFoda(){ FODA_F.forEach(id=>{ if(S.foda[id]) document.getElementById(id).value=S.foda[id]; }); }
+const BMC_F = ['bmc_seg','bmc_pv','bmc_can','bmc_rel','bmc_ing','bmc_rec','bmc_act','bmc_soc','bmc_cos'];
+function saveBmc(){ BMC_F.forEach(id=>S.bmc[id]=document.getElementById(id).value); save(); }
+function loadBmc(){ BMC_F.forEach(id=>{ if(S.bmc[id]) document.getElementById(id).value=S.bmc[id]; }); }
+const PI_F = ['pi_c','pi_m','pi_l'];
+function savePitch(){ PI_F.forEach(id=>S.pitch[id]=document.getElementById(id).value); save(); }
+function loadPitch(){ PI_F.forEach(id=>{ if(S.pitch[id]) document.getElementById(id).value=S.pitch[id]; }); }
+
+// ─── SEMÁFORO ──────────────────────────────────────────
+function renderSem(){
+  let html='';
+  SEM_DATA.forEach((g,gi)=>{
+    html+=`<div class="ev-cat-ttl">${esc(g.sec)}</div>`;
+    g.items.forEach((it,ii)=>{
+      const k=gi+'_'+ii, st=S.sem[k]||'';
+      html+=`<div class="sem-row"><span class="sem-lbl">${esc(it)}</span>
+        <div class="sem-btns">
+          <button class="sem-b r ${st==='r'?'on':''}" onclick="setSem('${k}','r')" title="Rojo: aún no"></button>
+          <button class="sem-b a ${st==='a'?'on':''}" onclick="setSem('${k}','a')" title="Amarillo: en proceso"></button>
+          <button class="sem-b v ${st==='v'?'on':''}" onclick="setSem('${k}','v')" title="Verde: logrado"></button>
+        </div></div>`;
+    });
+  });
+  document.getElementById('semList').innerHTML=html;
+  updateSemProg();
+}
+function setSem(k,v){ S.sem[k]=S.sem[k]===v?'':v; save(); renderSem(); }
+function updateSemProg(){
+  const total = SEM_DATA.reduce((a,g)=>a+g.items.length,0);
+  const pts = Object.values(S.sem).reduce((a,v)=>a+(v==='v'?1:v==='a'?.5:0),0);
+  const pct = Math.round(pts/total*100);
+  document.getElementById('sem-p').textContent=pct+'%';
+  document.getElementById('sem-f').style.width=pct+'%';
+}
+
+// ─── FACHADA CHECKLIST ─────────────────────────────────
+function renderFach(){
+  let html='';
+  FACH_DATA.forEach((g,gi)=>{
+    html+=`<div class="ev-cat-ttl">${esc(g.sec)}</div>`;
+    g.items.forEach((it,ii)=>{
+      const k=gi+'_'+ii, st=S.fachSt[k]||'';
+      html+=`<div class="r-row"><span class="r-lbl">${esc(it)}</span>
+        <div class="pill-wrap">
+          <span class="pill pill-pend ${st==='pend'?'on':''}" onclick="setFach('${k}','pend')">Pendiente</span>
+          <span class="pill pill-proc ${st==='proc'?'on':''}" onclick="setFach('${k}','proc')">En proceso</span>
+          <span class="pill pill-ok ${st==='ok'?'on':''}" onclick="setFach('${k}','ok')">Listo</span>
+        </div>
+        <div class="r-obs"><input class="r-obs-inp" value="${esc(S.fachObs[k]||'')}" placeholder="Observaciones..." onchange="S.fachObs['${k}']=this.value;save()"></div>
+      </div>`;
+    });
+  });
+  document.getElementById('fachList').innerHTML=html;
+  updateFachProg();
+}
+function setFach(k,v){ S.fachSt[k]=S.fachSt[k]===v?'':v; save(); renderFach(); }
+function updateFachProg(){
+  const total = FACH_DATA.reduce((a,g)=>a+g.items.length,0);
+  const done = Object.values(S.fachSt).filter(v=>v==='ok').length;
+  const pct = Math.round(done/total*100);
+  document.getElementById('fa-p').textContent=pct+'%';
+  document.getElementById('fa-f').style.width=pct+'%';
+}
+
+// ─── NETWORKING ────────────────────────────────────────
+function netList(t){ return t==='p'?S.netP:t==='s'?S.netS:S.netI; }
+function addContact(t){ netList(t).push({n:'',c:'',li:'',uc:'',st:''}); save(); renderNet(t); }
+function delContact(t,i){ netList(t).splice(i,1); save(); renderNet(t); }
+function updContact(t,i,k,v){ netList(t)[i][k]=v; save(); renderNet(t); }
+function isStale(uc){
+  if(!uc) return false;
+  const d=new Date(uc); if(isNaN(d)) return false;
+  return (Date.now()-d.getTime())/(1000*60*60*24) > 21;
+}
+function copyNetMsg(t,i){
+  const c=netList(t)[i];
+  const proj=S.proj||'mi proyecto';
+  const pv=S.foco.pv5||'lo que estoy construyendo';
+  const msg=`Hola ${c.n||''}! ¿Cómo estás? Te escribo porque estoy desarrollando ${proj}: ${pv}. Me encantaría contarte más y conocer tu mirada. ¿Tenés 10 minutos esta semana para una llamada corta?`;
+  navigator.clipboard.writeText(msg).then(()=>toast('📋 Mensaje copiado — personalizalo antes de enviar','ok'));
+}
+function renderNet(t){
+  const el=document.getElementById('net-'+t);
+  const list=netList(t);
+  if(!list.length){ el.innerHTML='<div class="en-empty">Sin contactos aún.</div>'; return; }
+  el.innerHTML=list.map((c,i)=>`
+    <div class="net-row ${isStale(c.uc)?'stale':''}">
+      <span class="net-num">${i+1}</span>
+      <input class="net-inp" value="${esc(c.n)}" placeholder="Nombre" onchange="updContact('${t}',${i},'n',this.value)">
+      <input class="net-inp" value="${esc(c.c)}" placeholder="Mail / Tel" onchange="updContact('${t}',${i},'c',this.value)">
+      <select class="net-sel" onchange="updContact('${t}',${i},'li',this.value)"><option value="" ${!c.li?'selected':''}>—</option><option ${c.li==='Sí'?'selected':''}>Sí</option><option ${c.li==='No'?'selected':''}>No</option></select>
+      <input class="net-inp" type="date" value="${esc(c.uc)}" onchange="updContact('${t}',${i},'uc',this.value)">
+      <select class="net-sel" onchange="updContact('${t}',${i},'st',this.value)"><option value="">Estado...</option>${NET_STATUS.map(s=>`<option ${c.st===s?'selected':''}>${s}</option>`).join('')}</select>
+      <button class="net-del" onclick="delContact('${t}',${i})">✕</button>
+      <button class="net-msg-btn" onclick="copyNetMsg('${t}',${i})" title="Copiar mensaje sugerido">📩</button>
+    </div>`).join('');
+}
+
+// ─── VALIDACIÓN ────────────────────────────────────────
+function addVal(){
+  S.vals.push({f:new Date().toISOString().slice(0,10),n:'',seg:'',can:'',of:'',int:3,obj:'',st:'Pendiente'});
+  save(); renderVals();
+}
+function delVal(i){ S.vals.splice(i,1); save(); renderVals(); updateFunnel(); }
+function updVal(i,k,v){
+  S.vals[i][k]=k==='int'?Math.max(1,Math.min(5,+v||1)):v;
+  if(k==='st'&&v==='Venta 🎉'&&!S.celebrated){ S.celebrated=true; showCeleb(); }
+  save(); renderVals(); updateFunnel();
+}
+function renderVals(){
+  const el=document.getElementById('valList');
+  if(!S.vals.length){ el.innerHTML='<div class="en-empty">Sin conversaciones registradas. La validación empieza cuando hablás con gente real.</div>'; return; }
+  el.innerHTML=S.vals.map((v,i)=>`
+    <div class="val-row">
+      <input class="net-inp" type="date" value="${esc(v.f)}" onchange="updVal(${i},'f',this.value)">
+      <input class="net-inp" value="${esc(v.n)}" placeholder="Nombre" onchange="updVal(${i},'n',this.value)">
+      <input class="net-inp" value="${esc(v.seg)}" placeholder="Segmento" onchange="updVal(${i},'seg',this.value)">
+      <select class="net-sel" onchange="updVal(${i},'can',this.value)"><option value="">Canal...</option>${['WhatsApp','LinkedIn','Instagram','Presencial','Llamada','Email','Otro'].map(c=>`<option ${v.can===c?'selected':''}>${c}</option>`).join('')}</select>
+      <input class="net-inp" value="${esc(v.of)}" placeholder="Qué presentaste" onchange="updVal(${i},'of',this.value)">
+      <input class="net-inp" type="number" min="1" max="5" value="${v.int}" title="Interés 1-5" onchange="updVal(${i},'int',this.value)" style="text-align:center">
+      <input class="net-inp" value="${esc(v.obj)}" placeholder="Objeción / aprendizaje" onchange="updVal(${i},'obj',this.value)">
+      <select class="net-sel" onchange="updVal(${i},'st',this.value)">${VAL_STATUS.map(s=>`<option ${v.st===s?'selected':''}>${s}</option>`).join('')}</select>
+      <button class="net-del" onclick="delVal(${i})">✕</button>
+    </div>`).join('');
+}
+function updateFunnel(){
+  const conv=S.vals.length;
+  const hot=S.vals.filter(v=>+v.int>=4).length;
+  const prop=S.vals.filter(v=>v.st==='Propuesta enviada'||v.st==='Venta 🎉').length;
+  const sale=S.vals.filter(v=>v.st==='Venta 🎉').length;
+  const nums=[conv,hot,prop,sale];
+  const max=Math.max(conv,1);
+  nums.forEach((n,i)=>{
+    document.getElementById('fn'+i).textContent=n;
+    document.getElementById('fb'+i).style.height=Math.round(n/max*100)+'%';
+    document.getElementById('fp'+i).textContent=i===0?(n?'100%':'—'):(conv?Math.round(n/conv*100)+'%':'—');
+  });
+}
+
+// ─── EVALUACIONES DE REUNIONES ─────────────────────────
+function addEval(){ S.evals.push({t:'',d:new Date().toLocaleDateString('es-AR'),scores:{},obs:{},nota:''}); save(); renderEvals(); }
+function delEval(i){ if(confirm('¿Eliminar esta evaluación?')){ S.evals.splice(i,1); save(); renderEvals(); } }
+function setScore(e,k,v){ S.evals[e].scores[k]=v; save(); renderEvals(); }
+function evalAvg(ev){
+  const vals=Object.values(ev.scores||{});
+  return vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):'—';
+}
+function renderEvals(){
+  const c=document.getElementById('evalsCont');
+  if(!S.evals.length){ c.innerHTML='<div style="text-align:center;padding:36px;color:var(--muted);font-size:13.5px">Aún no tenés evaluaciones. Después de cada reunión comercial, evaluá cómo estuviste — ahí está el aprendizaje.</div>'; return; }
+  c.innerHTML=S.evals.map((ev,e)=>{
+    let rows='';
+    EVAL_DATA.forEach((g,gi)=>{
+      rows+=`<div class="ev-cat-ttl">${esc(g.cat)}</div>`;
+      g.items.forEach((it,ii)=>{
+        const k=gi+'_'+ii, cur=ev.scores[k]||0;
+        rows+=`<div class="r-row"><span class="r-lbl">${esc(it)}</span>
+          <div class="r-btns">${[1,2,3,4,5].map(n=>`<button class="rb ${cur===n?'on':''}" onclick="setScore(${e},'${k}',${n})">${n}</button>`).join('')}</div>
+        </div>`;
+      });
+    });
+    return `<div class="ev-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="score-circle">${evalAvg(ev)}</div>
+        <input class="ev-title-inp" value="${esc(ev.t)}" placeholder="¿Con quién fue la reunión?" onchange="S.evals[${e}].t=this.value;save()">
+        <span style="font-size:11px;color:var(--muted)">${esc(ev.d)}</span>
+        <button class="btn btn-danger btn-xs" onclick="delEval(${e})">Eliminar</button>
+      </div>
+      ${rows}
+      <div class="fld" style="margin-top:12px"><label class="lbl">Aprendizaje clave de esta reunión</label><textarea class="ta" style="min-height:56px" onchange="S.evals[${e}].nota=this.value;save()">${esc(ev.nota)}</textarea></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── FINANZAS ──────────────────────────────────────────
+const FIN_F=['fi_ing','fi_cos','fi_hs','fi_pf','pe_cf','pe_pr','pe_cv'];
+function calcFin(){
+  FIN_F.forEach(id=>S.fin[id]=document.getElementById(id).value);
+  save();
+  const ing=+S.fin.fi_ing||0, cos=+S.fin.fi_cos||0, hs=+S.fin.fi_hs||0, pf=+S.fin.fi_pf||0;
+  const resEl=document.getElementById('fi_res'), detEl=document.getElementById('fi_det');
+  if(ing>0&&hs>0&&pf>0){
+    const hFact=hs*4.33*(pf/100);
+    const vh=(ing+cos)/hFact;
+    resEl.textContent='$ '+Math.ceil(vh).toLocaleString('es-AR');
+    detEl.textContent=`${Math.round(hFact)} horas facturables/mes para cubrir $${(ing+cos).toLocaleString('es-AR')}`;
+  } else { resEl.textContent='—'; detEl.textContent='Completá los campos para calcular'; }
+  const cf=+S.fin.pe_cf||0, pr=+S.fin.pe_pr||0, cv=+S.fin.pe_cv||0;
+  const peEl=document.getElementById('pe_res'), pdEl=document.getElementById('pe_det');
+  if(cf>0&&pr>0&&pr>cv){
+    const mc=pr-cv;
+    const u=Math.ceil(cf/mc);
+    peEl.textContent=u.toLocaleString('es-AR');
+    pdEl.textContent=`Margen de contribución: $${mc.toLocaleString('es-AR')} por venta (${Math.round(mc/pr*100)}%)`;
+  } else if(pr>0&&cv>=pr){ peEl.textContent='⚠️'; pdEl.textContent='El costo variable supera el precio: cada venta pierde plata.'; }
+  else { peEl.textContent='—'; pdEl.textContent='Completá los campos para calcular'; }
+}
+function loadFin(){ FIN_F.forEach(id=>{ if(S.fin[id]) document.getElementById(id).value=S.fin[id]; }); calcFin(); }
+
+// ─── PROMPTS ───────────────────────────────────────────
+function fx(v,ph){ return v&&v.trim()?v.trim():'{'+ph+'}'; }
+function buildPrompts(){
+  const f=S.foco||{}, inv=S.inv||{};
+  const filled=k=>!!(f[k]&&f[k].trim());
+  return [
+    { t:'🪶 Inventario Estratégico (Pájaro en Mano)', auto:!!(inv.inv_hab||inv.inv_exp), p:`Actuá como consultor/a especializado/a en autoempleo y negocios de servicios. Este es mi inventario personal:\n\nHabilidades: ${fx(inv.inv_hab,'habilidades')}\nExperiencia: ${fx(inv.inv_exp,'experiencia')}\nRed de contactos: ${fx(inv.inv_red,'red')}\nRecursos: ${fx(inv.inv_rec,'recursos')}\nFortalezas diferenciales: ${fx(inv.inv_dif,'diferenciales')}\n\nAyudame a identificar 5 oportunidades de negocio de servicios que pueda lanzar en menos de 60 días con estos recursos. Para cada una: problema que resuelve, cliente que pagaría y primer paso concreto.` },
+    { t:'🔍 Detectar Oportunidades de Mercado', auto:!!inv.prob_txt, p:`Actuá como analista de tendencias y consultor/a en autoempleo. Estos son problemas que detecté a mi alrededor:\n\n${fx(inv.prob_txt,'problemas detectados')}\n\nAnalizá cuáles tienen mayor potencial de negocio considerando: frecuencia del problema, disposición a pagar, competencia existente y facilidad de llegada al cliente. Ordenalos de mayor a menor potencial y justificá.` },
+    { t:'👥 Definir Cliente Ideal', auto:filled('f_hip'), p:`Actuá como consultor/a de modelo de negocio. Tengo esta idea: ${fx(f.f_hip,'tu hipótesis')}.\n\nAyudame a definir 3 perfiles de cliente ideal concretos (no genéricos): características demográficas, contexto, dolor específico, dónde encontrarlos y cuál de los 3 tiene mayor probabilidad de pagar primero.` },
+    { t:'🏷️ Naming y Fachada Digital', auto:filled('pv5'), p:`Generá 10 nombres de marca para un emprendimiento que ofrece: ${fx(f.pv5,'tu solución')} para ${fx(f.pv2,'tu cliente ideal')}. Criterios: fácil de pronunciar en español, disponible como usuario de Instagram, que no limite el crecimiento futuro. Para los 3 mejores, sugerí una bio de Instagram de máximo 150 caracteres.` },
+    { t:'🛡️ Anti-sesgo (usar SIEMPRE)', auto:true, p:`A partir de ahora, tu tarea no es validar automáticamente mis ideas. Cuando te comparta una idea, un texto o una decisión de negocio, quiero que actúes como un/a analista crítico/a: señalá los supuestos no verificados, los riesgos que no estoy viendo y las preguntas incómodas que debería responder antes de avanzar. Después de la crítica, sugerí cómo mejorarla.` },
+    { t:'💬 Simulador de Conversaciones Comerciales', auto:filled('pv5'), p:`Actuá como un cliente potencial escéptico del perfil: ${fx(f.pv2,'cliente ideal')}. Yo ofrezco: ${fx(f.pv5,'tu solución')}. Simulá una conversación de venta por WhatsApp donde me hacés las objeciones típicas (precio, desconfianza, "lo pienso", comparación con competencia). Después de la simulación, evaluá mis respuestas y sugerí mejoras.` },
+    { t:'🎤 Pitch Corto (30 segundos)', auto:filled('pv2')&&filled('pv5'), p:`Actuá como experto/a en comunicación y simplificación estratégica. Con esta información:\n\nCliente: ${fx(f.pv2,'cliente')}\nProblema: ${fx(f.pv3,'problema')}\nSolución: ${fx(f.pv5,'solución')}\nBeneficio: ${fx(f.pv6,'beneficio')}\n\nRedactá 3 versiones de un pitch de 30 segundos: una directa, una emocional y una con pregunta disparadora. Lenguaje simple, sin tecnicismos, en español rioplatense.` },
+    { t:'🧪 Entrevista tipo Mom Test', auto:filled('pv3'), p:`Actuá como experto/a en validación de ideas aplicando los principios de The Mom Test. Quiero validar este problema: ${fx(f.pv3,'problema')} en el perfil: ${fx(f.pv2,'cliente ideal')}.\n\nDame un guion de 8 preguntas que indaguen sobre comportamiento pasado y real (no opiniones ni futuros hipotéticos), más 3 señales de que el problema es real y 3 señales de falsa validación.` },
+    { t:'⚔️ Mejorar el Diferencial', auto:filled('pv5'), p:`Actuá como analista competitivo. Mi servicio es: ${fx(f.pv5,'tu servicio')} para ${fx(f.pv2,'tu cliente')}. Investigá los diferenciales típicos de este rubro y ayudame a construir un posicionamiento que no compita por precio: 3 ángulos de diferenciación posibles con ejemplos de cómo comunicarlos.` },
+    { t:'💰 Establecer Precio con Lógica', auto:filled('pv5'), p:`Actuá como consultor/a en pricing para servicios independientes. Mi servicio: ${fx(f.pv5,'servicio')}. Mi cliente: ${fx(f.pv2,'cliente')}. Mi valor hora mínimo calculado: ${S.fin&&S.fin.fi_ing?'basado en mi calculadora, aprox.':'{completar con tu valor hora del módulo Finanzas}'}.\n\nProponeme una estructura de oferta en 3 niveles (básico, medio, premium) con lógica de precios, qué incluye cada nivel y cómo presentarla sin justificarme en exceso.` },
+  ];
+}
+function renderPrompts(){
+  const c=document.getElementById('promptsCont');
+  c.innerHTML=buildPrompts().map((pr,i)=>`
+    <div class="prompt-card">
+      <div class="prompt-ttl"><span>${pr.t}</span>
+        <span style="display:flex;gap:6px;align-items:center">
+          <span class="pp-badge ${pr.auto?'':'off'}">${pr.auto?'✓ Personalizado con tus datos':'Completá el tablero para personalizar'}</span>
+          <button class="btn btn-out btn-xs" onclick="togglePrompt(this)">Ver</button>
+          <button class="btn btn-p btn-xs" onclick="copyPrompt(${i},this)">📋 Copiar</button>
+        </span>
+      </div>
+      <div class="prompt-body">${esc(pr.p).replace(/\n/g,'<br>')}</div>
+    </div>`).join('');
+}
+function togglePrompt(btn){
+  const body=btn.closest('.prompt-card').querySelector('.prompt-body');
+  body.classList.toggle('xp');
+  btn.textContent=body.classList.contains('xp')?'Ocultar':'Ver';
+}
+function copyPrompt(i,btn){
+  navigator.clipboard.writeText(buildPrompts()[i].p).then(()=>{
+    btn.classList.add('cpy-ok'); btn.textContent='✓ Copiado';
+    setTimeout(()=>{ btn.classList.remove('cpy-ok'); btn.textContent='📋 Copiar'; },1600);
+  });
+}
+
+// ─── RECURSOS ──────────────────────────────────────────
+function renderRes(){
+  document.getElementById('resCont').innerHTML=RESOURCES.map(g=>`
+    <div class="res-group">
+      <div class="res-group-ttl">${esc(g.grp)}</div>
+      <div class="res-grid">
+        ${g.items.map(r=>`<a class="res-card" href="${r[2]}" target="_blank" rel="noopener">
+          <div class="res-ico">${r[0]}</div>
+          <div class="res-info"><h4>${esc(r[1])}</h4><p>${esc(r[3])}</p><span class="res-tag">${esc(r[4])}</span></div>
+        </a>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ─── STATS / SNAPSHOT / PROGRESS ───────────────────────
+function updateStats(){
+  document.getElementById('k0').textContent=S.vals.length;
+  document.getElementById('k1').textContent=S.vals.filter(v=>v.st==='Propuesta enviada'||v.st==='Venta 🎉').length;
+  document.getElementById('k2').textContent=S.vals.filter(v=>v.st==='Venta 🎉').length;
+  document.getElementById('k3').textContent=S.netP.length+S.netS.length+S.netI.length;
+}
+function updateSnap(){
+  const f=S.foco||{};
+  document.getElementById('snObj').textContent=f.f_smart&&f.f_smart.trim()?f.f_smart:'—';
+  document.getElementById('snZdp').textContent=f.f_zdp&&f.f_zdp.trim()?f.f_zdp:'—';
+  document.getElementById('snInd').textContent=f.f_ind&&f.f_ind.trim()?f.f_ind:'—';
+}
+function updateProgress(){
+  let pts=0, total=10;
+  const inv=S.inv||{}, f=S.foco||{};
+  if(['inv_hab','inv_exp','inv_red'].some(k=>inv[k]&&inv[k].trim())) pts++;
+  if(S.ideas.length) pts++;
+  if(f.f_hip&&f.f_hip.trim()&&f.f_smart&&f.f_smart.trim()) pts++;
+  if(['pv1','pv2','pv3','pv5','pv6'].every(k=>f[k]&&f[k].trim())) pts++;
+  if(FODA_F.some(k=>S.foda[k]&&S.foda[k].trim())&&BMC_F.filter(k=>S.bmc[k]&&S.bmc[k].trim()).length>=4) pts++;
+  if(S.pitch.pi_c&&S.pitch.pi_c.trim()) pts++;
+  if(Object.values(S.fachSt).filter(v=>v==='ok').length>=8) pts++;
+  if(S.netP.length+S.netS.length+S.netI.length>=5) pts++;
+  if(S.vals.length>=3) pts++;
+  if(S.fin.fi_ing&&S.fin.pe_cf) pts++;
+  const pct=Math.round(pts/total*100);
+  document.getElementById('sbPct').textContent=pct+'%';
+  document.getElementById('sbFill').style.width=pct+'%';
+  const subs=[[0,'Comenzá por tu inventario'],[20,'Buen arranque — seguí con el foco'],[40,'Tomando forma 💪'],[60,'Ya tenés estructura de negocio'],[80,'Etapa de validación activa'],[100,'¡Proyecto en marcha! 🚀']];
+  document.getElementById('sbSub').textContent=subs.reduce((a,[m,t])=>pct>=m?t:a,subs[0][1]);
+}
+
+// ─── BACKUP / EXPORT ───────────────────────────────────
+function doExport(){
+  S.lastBackup=Date.now(); save();
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='tenkai_emprendedurismo_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  document.getElementById('bkBanner').classList.remove('on');
+  toast('💾 Backup exportado','ok');
+}
+function doImport(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(typeof data!=='object'||data===null) throw 0;
+      S=data; localStorage.setItem(LS,JSON.stringify(S));
+      location.reload();
+    }catch(err){ toast('❌ Archivo inválido','err'); }
+  };
+  rd.readAsText(file); ev.target.value='';
+}
+function checkBkBanner(){
+  const last=Math.max(S.lastBackup||0,S.bkSnooze||0);
+  const hasData=S.vals.length||S.ideas.length||Object.keys(S.foco).length;
+  if(hasData&&Date.now()-last>14*24*60*60*1000) document.getElementById('bkBanner').classList.add('on');
+}
+function snoozeBk(){ S.bkSnooze=Date.now(); save(); document.getElementById('bkBanner').classList.remove('on'); }
+
+// ─── TOAST / CELEBRACIÓN ───────────────────────────────
+let toastT=null;
+function toast(msg,type){
+  const el=document.getElementById('toastEl');
+  el.textContent=msg; el.className='toast show '+(type||'');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('show'),2600);
+}
+function showCeleb(){
+  document.getElementById('celebMsg').innerHTML=`${esc(S.name||'')}: registraste tu primera <strong>venta</strong>. Ese número uno vale más que cualquier plan — es la prueba de que alguien pagó por lo que construiste. Celebralo, anotá qué funcionó y a por la segunda.`;
+  const wrap=document.getElementById('confWrap');
+  wrap.innerHTML='';
+  const colors=['#3b35a8','#8b3a8f','#d4522a','#059669','#d97706'];
+  for(let i=0;i<36;i++){
+    const c=document.createElement('div'); c.className='cc';
+    c.style.left=Math.random()*100+'%';
+    c.style.background=colors[i%colors.length];
+    c.style.animationDelay=(Math.random()*2)+'s';
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    wrap.appendChild(c);
+  }
+  document.getElementById('celebOv').classList.add('op');
+}
+function closeCeleb(){ document.getElementById('celebOv').classList.remove('op'); }
+
+// ─── INIT ──────────────────────────────────────────────
+function init(){
+  loadS();
+  if(S.name){ document.getElementById('obOv').style.display='none'; updateGreet(); }
+  loadInv(); loadFoco(); loadFoda(); loadBmc(); loadPitch(); loadFin();
+  renderEnLog(); markEnergyToday(); buildEnChart();
+  renderRituals(); renderIdeas(); renderSem(); renderFach();
+  renderNet('p'); renderNet('s'); renderNet('i');
+  renderVals(); updateFunnel(); renderEvals();
+  renderPrompts(); renderRes();
+  updateStats(); updateSnap(); updateProgress();
+  checkBkBanner();
+  document.getElementById('obName').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('obProj').focus(); });
+  document.getElementById('obProj').addEventListener('keydown',e=>{ if(e.key==='Enter') doOnboard(); });
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
